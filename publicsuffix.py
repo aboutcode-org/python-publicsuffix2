@@ -81,10 +81,10 @@ class PublicSuffixList(object):
 		else:
 			negate, children = parent
 
-		matches[-depth] = matches[-depth] or negate
+		matches[-depth] = negate
 
 		if depth < len(parts) and children:
-			for name in (parts[-depth], '*'):
+			for name in ('*', parts[-depth]):
 				child = children.get(name, None)
 				if child is not None:
 					self._lookup_node(matches, depth+1, child, parts)
@@ -102,5 +102,5 @@ class PublicSuffixList(object):
 		self._lookup_node(hits, 1, self.root, parts)
 
 		for i, what in enumerate(hits):
-			if what is not None:
+			if what is not None and what == 0:
 				return '.'.join(parts[i:])

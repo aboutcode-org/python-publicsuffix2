@@ -1,4 +1,4 @@
-"""Public Suffix List support for Python.
+"""Public Suffix List module for Python.
 """
 
 import codecs
@@ -90,6 +90,10 @@ class PublicSuffixList(object):
 
 		Calling this function with a DNS name will return the
 		public suffix for that name.
+
+		Note that for internationalized domains the list at
+		http://publicsuffix.org uses decoded names, so it is
+		up to the caller to decode any Punycode-encoded names.
 		"""
 
 		parts = domain.lower().lstrip('.').split('.')

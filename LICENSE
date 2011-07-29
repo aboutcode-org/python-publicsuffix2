@@ -1,8 +1,8 @@
 Copyright (c) 2011 Tomaž Šolc <tomaz.solc@tablix.org>
 
 Python module included in this distribution is based on the code downloaded
-from http://code.google.com/p/python-geoip/ It contains the following
-copyright notice:
+from http://code.google.com/p/python-geoip/, which is available under the 
+following license:
 
 Copyright (c) 2009 David Wilson
 

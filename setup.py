@@ -25,17 +25,17 @@ class TestCommand(Command):
 
 		result = unittest.TextTestRunner(verbosity=2).run(suite)
 
-setup(name='Public Suffix List',
-      version='1.0.0',
-      description='Get a public suffix for a domain name using the Public Suffix List.',
-      license='MIT',
-      long_description=open("README").read(),
-      author=u'Toma\N{latin small letter z with caron} \N{latin capital letter s with caron}olc',
-      author_email='tomaz.solc@tablix.org',
+setup(name='publicsuffix',
+	version='1.0.0',
+	description='Get a public suffix for a domain name using the Public Suffix List.',
+	license='MIT',
+	long_description=open("README").read(),
+	author=u'Toma\N{latin small letter z with caron} \N{latin capital letter s with caron}olc',
+	author_email='tomaz.solc@tablix.org',
 
-      packages = [ 'publicsuffix' ],
+	py_modules = ['publicsuffix'],
+	data_files = [('lib/python', ['publicsuffix.txt'])],
+	provides = [ 'publicsuffix' ],
 
-      provides = [ 'publicsuffix' ],
-
-      cmdclass = { 'test': TestCommand }
+	cmdclass = { 'test': TestCommand }
 )

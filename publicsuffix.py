@@ -1,24 +1,24 @@
 """Public Suffix List support for Python.
 """
 
+import codecs
 import os.path
 
 class PublicSuffixList(object):
 	def __init__(self, input_file=None):
 		"""Reads and parses public suffix list.
 		
-		input_file is an iterable object that returns lines of a
-		public suffix list file (standard Python file-like objects
-		work). If input_file is None, a file named
-		"publicsuffix.txt" in the same directory as this Python
-		module is used.
+		input_file is a file object or another iterable that returns
+		lines of a public suffix list file. If input_file is None, an
+		UTF-8 encoded file named "publicsuffix.txt" in the same
+		directory as this Python module is used.
 		
 		The file format is described at http://publicsuffix.org/list/
 		"""
 
 		if input_file is None:
 			input_path = os.path.join(os.path.dirname(__file__), 'publicsuffix.txt')
-			input_file = file(input_path)
+			input_file = codecs.open(input_path, "r", "utf8")
 
 		root = self._build_structure(input_file)
 		self.root = self._simplify(root)
@@ -34,10 +34,6 @@ class PublicSuffixList(object):
 		negate, children = parent
 
 		child = parts.pop()
-		try:
-			child = child.encode('ascii')
-		except:
-			pass
 
 		child_node = children.get(child, None)
 
@@ -66,7 +62,7 @@ class PublicSuffixList(object):
 		root = [0]
 
 		for line in fp:
-			line = line.decode('utf-8').strip()
+			line = line.strip()
 			if line.startswith('//') or not line:
 				continue
 

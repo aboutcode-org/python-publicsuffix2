@@ -33,7 +33,7 @@ Source
 
 You can get a local copy of the development repository with::
 
-    git clone git clone http://www.tablix.org/~avian/git/publicsuffix.git
+    git clone http://www.tablix.org/~avian/git/publicsuffix.git
 
 ..
     vim: set filetype=rst:

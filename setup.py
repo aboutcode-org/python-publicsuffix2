@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from distutils.core import Command, setup
+from distutils.command.install import INSTALL_SCHEMES
 import unittest
 
 UNITTESTS = [
@@ -25,6 +26,10 @@ class TestCommand(Command):
 
 		result = unittest.TextTestRunner(verbosity=2).run(suite)
 
+# Install data file into the same path as the module
+for scheme in INSTALL_SCHEMES.values():
+	scheme['data'] = scheme['purelib']
+
 setup(name='publicsuffix',
 	version='1.0.0',
 	description='Get a public suffix for a domain name using the Public Suffix List.',
@@ -34,7 +39,7 @@ setup(name='publicsuffix',
 	author_email='tomaz.solc@tablix.org',
 
 	py_modules = ['publicsuffix'],
-	data_files = [('lib/python', ['publicsuffix.txt'])],
+	data_files = [('', ['publicsuffix.txt'])],
 	provides = [ 'publicsuffix' ],
 
 	cmdclass = { 'test': TestCommand }

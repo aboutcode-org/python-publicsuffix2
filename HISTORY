@@ -1,0 +1,8 @@
+Version history for publicsuffix
+
+1.0.1
+	* Fixed installation issue under virtualenv (thanks to
+	  Mark McClain)
+
+1.0.0
+	* First release

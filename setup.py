@@ -35,7 +35,7 @@ setup(name='publicsuffix',
 	description='Get a public suffix for a domain name using the Public Suffix List.',
 	license='MIT',
 	long_description=open("README").read(),
-	author=u'Toma\N{latin small letter z with caron} \N{latin capital letter s with caron}olc',
+	author='Tomaz Solc',
 	author_email='tomaz.solc@tablix.org',
 
 	py_modules = ['publicsuffix'],

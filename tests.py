@@ -1,8 +1,16 @@
 import publicsuffix
 import unittest
+import sys
+
+if sys.version < '3':
+	import codecs
+	def u(x):
+		return codecs.unicode_escape_decode(x)[0]
+else:
+	def u(x):
+		return x
 
 class TestPublicSuffix(unittest.TestCase):
-
 	def test_empty(self):
 		psl = publicsuffix.PublicSuffixList([])
 
@@ -38,12 +46,12 @@ class TestPublicSuffix(unittest.TestCase):
 
 	def test_unicode(self):
 		psl = publicsuffix.PublicSuffixList([
-			u"\u0440\u0444"])
+			u("\u0440\u0444")])
 
-		self.assertEqual(psl.get_public_suffix(u"\u0440\u0444"), u"\u0440\u0444")
-		self.assertEqual(psl.get_public_suffix(u"example.\u0440\u0444"), u"example.\u0440\u0444")
-		self.assertEqual(psl.get_public_suffix(u"a.example.\u0440\u0444"), u"example.\u0440\u0444")
-		self.assertEqual(psl.get_public_suffix(u"a.a.example.\u0440\u0444"), u"example.\u0440\u0444")
+		self.assertEqual(psl.get_public_suffix(u("\u0440\u0444")), u("\u0440\u0444"))
+		self.assertEqual(psl.get_public_suffix(u("example.\u0440\u0444")), u("example.\u0440\u0444"))
+		self.assertEqual(psl.get_public_suffix(u("a.example.\u0440\u0444")), u("example.\u0440\u0444"))
+		self.assertEqual(psl.get_public_suffix(u("a.a.example.\u0440\u0444")), u("example.\u0440\u0444"))
 
 	def test_publicsuffix_org_list_test(self):
 

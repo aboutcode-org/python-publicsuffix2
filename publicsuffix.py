@@ -56,7 +56,7 @@ class PublicSuffixList(object):
 		if len(node) == 1:
 			return node[0]
 
-		return (node[0], dict((k, self._simplify(v)) for (k, v) in node[1].iteritems()))
+		return (node[0], dict((k, self._simplify(v)) for (k, v) in node[1].items()))
 
 	def _build_structure(self, fp):
 		root = [0]

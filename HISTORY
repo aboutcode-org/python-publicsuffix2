@@ -1,5 +1,9 @@
 Version history for publicsuffix
 
+1.0.2
+	* Compatibility with Python 3.x (thanks to Joern
+	  Koerner) and Python 2.5
+
 1.0.1
 	* Fixed installation issue under virtualenv (thanks to
 	  Mark McClain)

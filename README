@@ -17,6 +17,7 @@ Module content
 The module exports a class that parses the Public Suffix List and allows
 queries for individual domain names::
 
+    >>> from publicsuffix import PublicSuffixList
     >>> psl = PublicSuffixList()
     >>> psl.get_public_suffix("www.example.com")
     'example.com'

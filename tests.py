@@ -76,9 +76,9 @@ class TestPublicSuffix(unittest.TestCase):
 		checkPublicSuffix('a.b.example.example', 'example');
 		# Listed, but non-Internet, TLD.
 		checkPublicSuffix('local', 'local');
-		checkPublicSuffix('example.local', 'example.local');
-		checkPublicSuffix('b.example.local', 'example.local');
-		checkPublicSuffix('a.b.example.local', 'example.local');
+		checkPublicSuffix('example.local', 'local');
+		checkPublicSuffix('b.example.local', 'local');
+		checkPublicSuffix('a.b.example.local', 'local');
 		# TLD with only 1 rule.
 		checkPublicSuffix('biz', 'biz');
 		checkPublicSuffix('domain.biz', 'domain.biz');
@@ -106,14 +106,12 @@ class TestPublicSuffix(unittest.TestCase):
 		checkPublicSuffix('ac.jp', 'ac.jp');
 		checkPublicSuffix('test.ac.jp', 'test.ac.jp');
 		checkPublicSuffix('www.test.ac.jp', 'test.ac.jp');
-		checkPublicSuffix('kyoto.jp', 'kyoto.jp');
-		checkPublicSuffix('c.kyoto.jp', 'c.kyoto.jp');
-		checkPublicSuffix('b.c.kyoto.jp', 'b.c.kyoto.jp');
-		checkPublicSuffix('a.b.c.kyoto.jp', 'b.c.kyoto.jp');
-		checkPublicSuffix('pref.kyoto.jp', 'pref.kyoto.jp');	# Exception rule.
-		checkPublicSuffix('www.pref.kyoto.jp', 'pref.kyoto.jp');	# Exception rule.
-		checkPublicSuffix('city.kyoto.jp', 'city.kyoto.jp');	# Exception rule.
-		checkPublicSuffix('www.city.kyoto.jp', 'city.kyoto.jp');	# Exception rule.
+		checkPublicSuffix('kobe.jp', 'kobe.jp');
+		checkPublicSuffix('c.kobe.jp', 'c.kobe.jp');
+		checkPublicSuffix('b.c.kobe.jp', 'b.c.kobe.jp');
+		checkPublicSuffix('a.b.c.kobe.jp', 'b.c.kobe.jp');
+		checkPublicSuffix('city.kobe.jp', 'city.kobe.jp');	# Exception rule.
+		checkPublicSuffix('www.city.kobe.jp', 'city.kobe.jp');	# Exception rule.
 		# TLD with a wildcard rule and exceptions.
 		checkPublicSuffix('om', 'om');
 		checkPublicSuffix('test.om', 'test.om');

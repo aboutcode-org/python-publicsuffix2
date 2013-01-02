@@ -31,7 +31,7 @@ for scheme in INSTALL_SCHEMES.values():
 	scheme['data'] = scheme['purelib']
 
 setup(name='publicsuffix',
-	version='1.0.3',
+	version='1.0.4',
 	description='Get a public suffix for a domain name using the Public Suffix List.',
 	license='MIT',
 	long_description=open("README").read(),

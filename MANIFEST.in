@@ -1,4 +1,4 @@
-include HISTORY
+include ChangeLog
 include LICENSE
 include publicsuffix.txt
 include tests.py

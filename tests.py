@@ -118,13 +118,6 @@ class TestPublicSuffix(unittest.TestCase):
 		checkPublicSuffix('a.b.c.kobe.jp', 'b.c.kobe.jp');
 		checkPublicSuffix('city.kobe.jp', 'city.kobe.jp');	# Exception rule.
 		checkPublicSuffix('www.city.kobe.jp', 'city.kobe.jp');	# Exception rule.
-		# TLD with a wildcard rule and exceptions.
-		checkPublicSuffix('om', 'om');
-		checkPublicSuffix('test.om', 'test.om');
-		checkPublicSuffix('b.test.om', 'b.test.om');
-		checkPublicSuffix('a.b.test.om', 'b.test.om');
-		checkPublicSuffix('songfest.om', 'songfest.om');
-		checkPublicSuffix('www.songfest.om', 'songfest.om');
 		# US K12.
 		checkPublicSuffix('us', 'us');
 		checkPublicSuffix('test.us', 'test.us');

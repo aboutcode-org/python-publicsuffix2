@@ -44,6 +44,12 @@ class TestPublicSuffix(unittest.TestCase):
 		self.assertEqual(psl.get_public_suffix("b.b.b.example.com"), "b.example.com")
 		self.assertEqual(psl.get_public_suffix("b.b.b.b.example.com"), "b.example.com")
 
+	def test_fqdn(self):
+		psl = publicsuffix.PublicSuffixList([
+			"com"])
+
+		self.assertEqual(psl.get_public_suffix("example.com."), "example.com")
+
 	def test_unicode(self):
 		psl = publicsuffix.PublicSuffixList([
 			u("\u0440\u0444")])

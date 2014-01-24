@@ -96,7 +96,7 @@ class PublicSuffixList(object):
 		up to the caller to decode any Punycode-encoded names.
 		"""
 
-		parts = domain.lower().lstrip('.').split('.')
+		parts = domain.lower().strip('.').split('.')
 		hits = [None] * len(parts)
 
 		self._lookup_node(hits, 1, self.root, parts)

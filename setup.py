@@ -1,54 +1,62 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 
-from distutils.core import Command, setup
-from distutils.command.install import INSTALL_SCHEMES
-import unittest
+from __future__ import absolute_import, print_function
 
-UNITTESTS = [
-		"tests", 
-	]
+import io
+import os
+import re
+from glob import glob
+from os.path import basename
+from os.path import dirname
+from os.path import join
+from os.path import relpath
+from os.path import splitext
 
-class TestCommand(Command):
-	user_options = [ ]
+from setuptools import find_packages
+from setuptools import setup
 
-	def initialize_options(self):
-		pass
 
-	def finalize_options(self):
-		pass
+def read(*names, **kwargs):
+    return io.open(
+        join(dirname(__file__), *names),
+        encoding=kwargs.get('encoding', 'utf8')
+    ).read()
 
-	def run(self):
-		suite = unittest.TestSuite()
 
-		suite.addTests( 
-			unittest.defaultTestLoader.loadTestsFromNames( 
-								UNITTESTS ) )
-
-		result = unittest.TextTestRunner(verbosity=2).run(suite)
-
-# Install data file into the same path as the module
-for scheme in INSTALL_SCHEMES.values():
-	scheme['data'] = scheme['purelib']
-
-setup(name='publicsuffix',
-	version='1.0.5',
-	description='Get a public suffix for a domain name using the Public Suffix List.',
-	license='MIT',
-	long_description=open("README").read(),
-	author='Tomaz Solc',
-	author_email='tomaz.solc@tablix.org',
-
-	py_modules = ['publicsuffix'],
-	data_files = [('', ['publicsuffix.txt'])],
-	provides = [ 'publicsuffix' ],
-
-	cmdclass = { 'test': TestCommand },
-
-	classifiers = [
-		"License :: OSI Approved :: MIT License",
-		"Programming Language :: Python",
-		"Programming Language :: Python :: 2",
-		"Programming Language :: Python :: 3",
-		"Topic :: Internet :: Name Service (DNS)",
-	],
+setup(
+    name='publicsuffix2',
+    version='2.0.0',
+    license='MIT and MPL-2.0',
+    description='Get a public suffix for a domain name using the Public Suffix List. Forked from and using the same API as the publicsuffix package.',
+    long_description='%s\n%s' % (read('README.rst'), re.sub(':obj:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))),
+    author='nexB Inc., Tomaz Solc and David Wilson',
+    author_email='info@nexb.com',
+    url='https://github.com/pombredanne/python-publicsuffix2',
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+    include_package_data=True,
+    zip_safe=False,
+    classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet :: Name Service (DNS)',
+        'Topic :: Utilities',
+        'Development Status :: 5 - Production/Stable',
+    ],
+    keywords=[
+        'domain', 'public suffix', 'suffix', 'dns', 'tld'
+    ],
+    install_requires=[
+    ],
+    extras_require={
+        # eg: 'rst': ['docutils>=0.11'],
+    },
+    entry_points={}
+    ,
 )

@@ -2,3 +2,7 @@
 MANIFEST
 dist
 build
+/.project
+/.pydevproject
+/.settings/
+*.egg-info/

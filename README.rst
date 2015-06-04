@@ -19,23 +19,29 @@ API.
 
 The code is MIT-licensed and the publicsuffix data list is MPL-2.0-licensed.
 
+
 Usage
 -----
 
 Install with::
+
     pip install publicsuffix2
 
 The module exports a single class that parses the Public Suffix List and allows
 queries for individual domain names::
 
     >>> from publicsuffix import PublicSuffixList
-    >>> psl = PublicSuffixList()
-    >>> psl.get_public_suffix("www.example.com")
-    'example.com'
+    >>> psl= PublicSuffixList()
+    >>> psl.get_public_suffix('www.example.com')
+    u'example.com'
+    >>> psl.get_public_suffix('www.example.co.uk')
+    u'example.co.uk'
+    >>> psl.get_public_suffix('www.super.example.co.uk')
+    u'example.co.uk'
 
 Note that the ``host`` part of an URL can contain strings that are
 not plain DNS domain names (IP addresses, Punycode-encoded names, name in
-combination with a port number or an username, etc.). It is up to the
+combination with a port number or a username, etc.). It is up to the
 caller to ensure only domain names are passed to the get_public_suffix()
 method.
 

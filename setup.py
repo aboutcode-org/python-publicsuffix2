@@ -26,7 +26,7 @@ def read(*names, **kwargs):
 
 setup(
     name='publicsuffix2',
-    version='2.0.0',
+    version='2.0.1',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix List. Forked from and using the same API as the publicsuffix package.',
     long_description='%s\n%s' % (read('README.rst'), re.sub(':obj:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))),

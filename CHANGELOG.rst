@@ -1,3 +1,16 @@
+Changelog
+---------
+
+2015-10-12    publicsuffix2 2.1.0
+
+    * Merged latest updates from publicsuffix
+    * Added new convenience top level get_public_suffix_function caching
+      a loaded list if needed.
+    * Updated publicsuffix.file to the latest version from Mozilla.
+    * Added an update_psl setup command to fetch and vendor the latest list
+      Use as: python setup.py update_psl
+
+
 2015-06-04    publicsuffix2 2.0.0
 
     * Forked publicsuffix, but kept the same API

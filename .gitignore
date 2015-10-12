@@ -6,3 +6,6 @@ build
 /.pydevproject
 /.settings/
 *.egg-info/
+/__pycache__/
+/tmp/
+/.cache/

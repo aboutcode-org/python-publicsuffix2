@@ -35,6 +35,7 @@
 
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 import publicsuffix
 import unittest
@@ -52,7 +53,7 @@ else:
 
 class TestPublicSuffix(unittest.TestCase):
 
-    def test_empty_list(self):
+    def test_get_public_suffix_from_empty_list(self):
         psl = publicsuffix.PublicSuffixList([])
 
         assert 'com' == psl.get_public_suffix('com')
@@ -60,7 +61,7 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'com' == psl.get_public_suffix('.com')
         assert 'com' == psl.get_public_suffix('a.example.com')
 
-    def test_basic(self):
+    def test_get_public_suffix_from_list(self):
         psl = publicsuffix.PublicSuffixList(['com'])
 
         assert 'example.com' == psl.get_public_suffix('a.example.com')
@@ -69,11 +70,8 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'example.com' == psl.get_public_suffix('A.example.com')
         assert 'example.com' == psl.get_public_suffix('.a.a.example.com')
 
-    def test_exception_rule(self):
-        psl = publicsuffix.PublicSuffixList([
-            '*.example.com',
-            '!b.example.com'
-        ])
+    def test_get_public_suffix_from_list_with_exception_rule(self):
+        psl = publicsuffix.PublicSuffixList(['*.example.com', '!b.example.com'])
 
         assert 'a.example.com' == psl.get_public_suffix('a.example.com')
         assert 'a.a.example.com' == psl.get_public_suffix('a.a.example.com')
@@ -85,12 +83,12 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'b.example.com' == psl.get_public_suffix('b.b.b.example.com')
         assert 'b.example.com' == psl.get_public_suffix('b.b.b.b.example.com')
 
-    def test_fqdn(self):
+    def test_get_public_suffix_from_list_with_fqdn(self):
         psl = publicsuffix.PublicSuffixList(['com'])
 
         assert 'example.com' == psl.get_public_suffix('example.com.')
 
-    def test_unicode(self):
+    def test_get_public_suffix_from_list_with_unicode(self):
         psl = publicsuffix.PublicSuffixList([u('\u0440\u0444')])
 
         assert u('\u0440\u0444') == psl.get_public_suffix(u('\u0440\u0444'))
@@ -98,8 +96,24 @@ class TestPublicSuffix(unittest.TestCase):
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.example.\u0440\u0444'))
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.a.example.\u0440\u0444'))
 
-    def test_with_full_publicsuffix_org_list(self):
-        psl = publicsuffix.PublicSuffixList()
+    def test_fetch_amd_get_public_suffix(self):
+        f = publicsuffix.fetch()
+        psl = publicsuffix.PublicSuffixList(f)
+        assert 'example.com' == psl.get_public_suffix('www.example.com')
+        assert u('www.\u9999\u6e2f') == psl.get_public_suffix(u('www.\u9999\u6e2f'))
+
+    def test_get_public_suffix_from_builtin_full_publicsuffix_org_using_func(self):
+        assert 'com' == publicsuffix.get_public_suffix('COM')
+        assert 'example.com' == publicsuffix.get_public_suffix('example.COM')
+        assert 'example.com' == publicsuffix.get_public_suffix('WwW.example.COM')
+
+
+class TestPublicSuffixCurrent(unittest.TestCase):
+    """Test using the vendored list"""
+    psl = None
+
+    def test_get_public_suffix_from_builtin_full_publicsuffix_org(self):
+        psl = publicsuffix.PublicSuffixList(self.psl)
 
         # Mixed case.
         assert 'com' == psl.get_public_suffix('COM')
@@ -142,10 +156,10 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'test.ac' == psl.get_public_suffix('test.ac')
 
         # TLD with only one wildcard rule.
-        assert 'cy' == psl.get_public_suffix('cy')
-        assert 'c.cy' == psl.get_public_suffix('c.cy')
-        assert 'b.c.cy' == psl.get_public_suffix('b.c.cy')
-        assert 'b.c.cy' == psl.get_public_suffix('a.b.c.cy')
+        assert 'er' == psl.get_public_suffix('er')
+        assert 'c.er' == psl.get_public_suffix('c.er')
+        assert 'b.c.er' == psl.get_public_suffix('b.c.er')
+        assert 'b.c.er' == psl.get_public_suffix('a.b.c.er')
 
         # More complex TLD.
         assert 'jp' == psl.get_public_suffix('jp')
@@ -173,3 +187,15 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'k12.ak.us' == psl.get_public_suffix('k12.ak.us')
         assert 'test.k12.ak.us' == psl.get_public_suffix('test.k12.ak.us')
         assert 'test.k12.ak.us' == psl.get_public_suffix('www.test.k12.ak.us')
+
+        # unicode
+        assert u('www.\u9999\u6e2f') == psl.get_public_suffix(u('www.\u9999\u6e2f'))
+
+
+class TestPublicSuffixLatest(TestPublicSuffixCurrent):
+    """Test using the latest list"""
+    psl = publicsuffix.fetch()
+
+
+if __name__ == '__main__':
+    unittest.main('tests')

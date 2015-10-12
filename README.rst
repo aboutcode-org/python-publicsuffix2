@@ -39,11 +39,11 @@ The module provides a function to query a domain name::
 
     >>> from publicsuffix import get_public_suffix
     >>> get_public_suffix('www.example.com')
-    u'example.com'
+    'example.com'
     >>> get_public_suffix('www.example.co.uk')
-    u'example.co.uk'
+    'example.co.uk'
     >>> get_public_suffix('www.super.example.co.uk')
-    u'example.co.uk'
+    'example.co.uk'
 
 This function loads and caches the public suffix list.
 
@@ -53,11 +53,11 @@ Suffix List and allows the same queries on individual domain names::
     >>> from publicsuffix import PublicSuffixList
     >>> psl= PublicSuffixList()
     >>> psl.get_public_suffix('www.example.com')
-    u'example.com'
+    'example.com'
     >>> psl.get_public_suffix('www.example.co.uk')
-    u'example.co.uk'
+    'example.co.uk'
     >>> psl.get_public_suffix('www.super.example.co.uk')
-    u'example.co.uk'
+    'example.co.uk'
 
 Note that the ``host`` part of an URL can contain strings that are
 not plain DNS domain names (IP addresses, Punycode-encoded names, name in
@@ -74,12 +74,12 @@ opened list. The fetch function fetches the latest list::
     >>> from publicsuffix import get_public_suffix, fetch
     >>> latest = fetch()
     >>> get_public_suffix('www.example.com', latest)
-    u'example.com'
+    'example.com'
 
 This will use the cached latest loaded above::
 
     >>> get_public_suffix('www.example.co.uk')
-    u'example.co.uk'
+    'example.co.uk'
 
 
 

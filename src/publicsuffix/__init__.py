@@ -44,7 +44,11 @@ import codecs
 from contextlib import closing
 from datetime import datetime
 import os.path
-from urllib2 import urlopen, Request
+
+try:
+    from urllib.request import urlopen, Request
+except ImportError:
+    from urllib2 import urlopen, Request
 
 
 BASE_DIR = os.path.dirname(__file__)
@@ -82,7 +86,7 @@ class PublicSuffixList(object):
         The file format is described at http://publicsuffix.org/
         """
         # Note: we test for None as we accept empty lists as inputs
-        if psl_file is None or isinstance(psl_file, basestring):
+        if psl_file is None or isinstance(psl_file, str):
             with codecs.open(psl_file or PSL_FILE, 'r', 'utf8') as psl:
                 psl = psl.readlines()
         else:

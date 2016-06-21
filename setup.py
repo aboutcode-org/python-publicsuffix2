@@ -76,7 +76,7 @@ license_text_file: mpl-2.0.LICENSE
 
 setup(
     name='publicsuffix2',
-    version='2.2016-06-21',
+    version='2.20160621',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix '
         'List. Forked from and using the same API as the publicsuffix package.',

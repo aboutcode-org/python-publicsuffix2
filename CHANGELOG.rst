@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-2016-06-21    publicsuffix2 2.2016-06-21
+2016-06-21    publicsuffix2 2.20160621
 
     * Updated publicsuffix.file to the latest version from Mozilla.
     * new version scheme: major.<publisiffix list date>

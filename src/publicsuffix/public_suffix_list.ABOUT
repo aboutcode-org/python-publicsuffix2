@@ -1,7 +1,7 @@
 
 about_resource: public_suffix_list.dat
 name: Public Suffix List
-version: 2015-10-12T10:58:06
+version: 2016-06-21T10:32:05
 download_url: https://publicsuffix.org/list/public_suffix_list.dat
 home_url: https://publicsuffix.org/
 

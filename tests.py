@@ -96,9 +96,14 @@ class TestPublicSuffix(unittest.TestCase):
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.example.\u0440\u0444'))
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.a.example.\u0440\u0444'))
 
-    def test_fetch_amd_get_public_suffix(self):
+    def test_fetch_and_get_public_suffix(self):
         f = publicsuffix.fetch()
-        psl = publicsuffix.PublicSuffixList(f)
+        import tempfile
+        _, psfile_name = tempfile.mkstemp()
+        with open(psfile_name, 'wb') as o:
+            o.write(f)
+
+        psl = publicsuffix.PublicSuffixList(psfile_name)
         assert 'example.com' == psl.get_public_suffix('www.example.com')
         assert u('www.\u9999\u6e2f') == psl.get_public_suffix(u('www.\u9999\u6e2f'))
 
@@ -113,7 +118,7 @@ class TestPublicSuffixCurrent(unittest.TestCase):
     psl = None
 
     def test_get_public_suffix_from_builtin_full_publicsuffix_org(self):
-        psl = publicsuffix.PublicSuffixList(self.psl)
+        psl = publicsuffix.PublicSuffixList(None)
 
         # Mixed case.
         assert 'com' == psl.get_public_suffix('COM')

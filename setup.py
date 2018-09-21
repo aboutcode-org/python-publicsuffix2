@@ -66,9 +66,10 @@ license_text_file: mpl-2.0.LICENSE
         glocals = dict(locals())
         glocals.update(globals())
         print('Fetching latest list from: %(PSL_URL)s on: %(version)s' % glocals)
-        with closing(fetch()) as fetched:
-            with codecs.open(PSL_FILE, 'wb', encoding='utf-8') as pslout:
-                pslout.write(fetched.read())
+
+        fetched= fetch()
+        with open(PSL_FILE, 'wb') as pslout:
+            pslout.write(fetched)
         with open(ABOUT_PSL_FILE, 'wb') as about:
             about.write(ABOUT_TEMPLATE % glocals)
         print('Saved updated %(PSL_FILE)s and %(ABOUT_PSL_FILE)s' % glocals)
@@ -76,7 +77,7 @@ license_text_file: mpl-2.0.LICENSE
 
 setup(
     name='publicsuffix2',
-    version='2.20160818',
+    version='2.20180921',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix '
         'List. Forked from and using the same API as the publicsuffix package.',
@@ -89,6 +90,9 @@ setup(
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
     zip_safe=False,
+    install_requires = [
+        'requests >= 2.7.0',
+    ],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

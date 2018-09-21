@@ -45,10 +45,7 @@ from contextlib import closing
 from datetime import datetime
 import os.path
 
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
+import requests
 
 
 BASE_DIR = os.path.dirname(__file__)
@@ -62,14 +59,7 @@ def fetch():
     Return a file-like object for the latest public suffix list downloaded from
     publicsuffix.org
     """
-    req = Request(PSL_URL, headers={'User-Agent': 'python-publicsuffix2'})
-    res = urlopen(req)
-    try:
-        encoding = res.headers.get_content_charset()
-    except AttributeError:
-        encoding = res.headers.getparam('charset')
-    f = codecs.getreader(encoding)(res)
-    return f
+    return requests.get(PSL_URL).content
 
 
 class PublicSuffixList(object):

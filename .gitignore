@@ -9,3 +9,4 @@ build
 /__pycache__/
 /tmp/
 /.cache/
+/.pytest_cache/

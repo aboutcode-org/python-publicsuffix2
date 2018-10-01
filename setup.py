@@ -36,17 +36,22 @@ class UpdatePslCommand(Command):
     def run(self):
         """
         Update the vendored public suffix list to the latest list from
-        publicsuffix.org saved side-by-side this Python script. 
-    
+        publicsuffix.org saved in the src directory of this package.
+
         Also create an ABOUT file with download info including the download UTC
         date/time as the version (see http://aboutcode.org)
         """
 
         from contextlib import closing
         from datetime import datetime
-        from publicsuffix import fetch, PSL_URL, PSL_FILE, BASE_DIR
+        import os
 
-        ABOUT_PSL_FILE = join(BASE_DIR, 'public_suffix_list.ABOUT')
+        import requests
+
+        PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat'
+        BASE_DIR = os.path.join(os.path.dirname(__file__), 'src', 'publicsuffix2')
+        PSL_FILE = os.path.join(BASE_DIR, 'public_suffix_list.dat')
+        ABOUT_PSL_FILE = os.path.join(BASE_DIR, 'public_suffix_list.ABOUT')
 
         ABOUT_TEMPLATE = '''
 about_resource: public_suffix_list.dat
@@ -63,11 +68,10 @@ license_text_file: mpl-2.0.LICENSE
 
         # current date and time as an ISO time stamp string
         version = datetime.isoformat(datetime.utcnow()).partition('.')[0]
-        glocals = dict(locals())
-        glocals.update(globals())
+        glocals = locals()
         print('Fetching latest list from: %(PSL_URL)s on: %(version)s' % glocals)
 
-        fetched= fetch()
+        fetched= requests.get(PSL_URL).content
         with open(PSL_FILE, 'wb') as pslout:
             pslout.write(fetched)
         with open(ABOUT_PSL_FILE, 'wb') as about:
@@ -77,14 +81,14 @@ license_text_file: mpl-2.0.LICENSE
 
 setup(
     name='publicsuffix2',
-    version='2.20180921',
+    version='2.20180921.1',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix '
         'List. Forked from and using the same API as the publicsuffix package.',
     long_description='%s\n%s' % (read('README.rst'), read('CHANGELOG.rst')),
     author='nexB Inc., Tomaz Solc and David Wilson',
     author_email='info@nexb.com',
-    url='https://github.com/pombredanne/python-publicsuffix2',
+    url='https://github.com/nexB/python-publicsuffix2',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],

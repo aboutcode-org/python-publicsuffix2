@@ -90,7 +90,7 @@ Get a local copy of the development repository. The development takes
 place in the ``develop`` branch. Stable releases are tagged in the ``master``
 branch::
 
-    git clone https://github.com/pombredanne/python-publicsuffix2.git
+    git clone https://github.com/nexB/python-publicsuffix2.git
 
 
 History

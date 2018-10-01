@@ -37,10 +37,10 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import publicsuffix
-import unittest
 import sys
+import unittest
 
+import publicsuffix2 as publicsuffix
 
 if sys.version < '3':
     import codecs
@@ -95,17 +95,6 @@ class TestPublicSuffix(unittest.TestCase):
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('example.\u0440\u0444'))
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.example.\u0440\u0444'))
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.a.example.\u0440\u0444'))
-
-    def test_fetch_and_get_public_suffix(self):
-        f = publicsuffix.fetch()
-        import tempfile
-        _, psfile_name = tempfile.mkstemp()
-        with open(psfile_name, 'wb') as o:
-            o.write(f)
-
-        psl = publicsuffix.PublicSuffixList(psfile_name)
-        assert 'example.com' == psl.get_public_suffix('www.example.com')
-        assert u('www.\u9999\u6e2f') == psl.get_public_suffix(u('www.\u9999\u6e2f'))
 
     def test_get_public_suffix_from_builtin_full_publicsuffix_org_using_func(self):
         assert 'com' == publicsuffix.get_public_suffix('COM')
@@ -195,11 +184,6 @@ class TestPublicSuffixCurrent(unittest.TestCase):
 
         # unicode
         assert u('www.\u9999\u6e2f') == psl.get_public_suffix(u('www.\u9999\u6e2f'))
-
-
-class TestPublicSuffixLatest(TestPublicSuffixCurrent):
-    """Test using the latest list"""
-    psl = publicsuffix.fetch()
 
 
 if __name__ == '__main__':

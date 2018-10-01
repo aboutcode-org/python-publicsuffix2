@@ -45,21 +45,10 @@ from contextlib import closing
 from datetime import datetime
 import os.path
 
-import requests
-
 
 BASE_DIR = os.path.dirname(__file__)
-PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat'
 PSL_FILE = os.path.join(BASE_DIR, 'public_suffix_list.dat')
 ABOUT_PSL_FILE = os.path.join(BASE_DIR, 'public_suffix_list.ABOUT')
-
-
-def fetch():
-    """
-    Return a file-like object for the latest public suffix list downloaded from
-    publicsuffix.org
-    """
-    return requests.get(PSL_URL).content
 
 
 class PublicSuffixList(object):
@@ -68,7 +57,7 @@ class PublicSuffixList(object):
         """
         Read and parse a public suffix list. `psl_file` is either a file
         location string, or a file-like object, or an iterable of lines from a
-        public suffix data file. 
+        public suffix data file.
 
         If psl_file is None, the vendored file named "public_suffix_list.dat" is
         loaded. It is stored side by side with this Python package.
@@ -149,7 +138,7 @@ class PublicSuffixList(object):
 
     def get_public_suffix(self, domain):
         """
-        Return the public suffix for a `domain` DNS name.
+        Return the public suffix for a `domain` DNS name string.
 
         For example::
         >>> get_public_suffix("www.example.com")
@@ -157,7 +146,7 @@ class PublicSuffixList(object):
 
         Note that for internationalized domains the list at
         http://publicsuffix.org uses decoded names, so it is
-        up to the caller to decode any Punycode-encoded names.
+        up to the caller to decode any Punycode-encoded names as unicode.
         """
 
         parts = domain.lower().strip('.').split('.')
@@ -175,7 +164,7 @@ _PSL = None
 
 def get_public_suffix(domain, psl_file=None):
     """
-    Return the public suffix for a `domain` DNS name.
+    Return the public suffix for a `domain` DNS name string.
     Convenience function that builds and caches a PublicSuffixList object.
 
     Optionally read, and parse a public suffix list. `psl_file` is either a file

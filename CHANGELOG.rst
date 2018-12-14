@@ -1,6 +1,29 @@
 Changelog
 ---------
 
+
+2018-12-13    publicsuffix2 2.20181213
+
+    * Updated publicsuffix.file to the latest version from Mozilla.
+
+
+2018-10-01    publicsuffix2 2.20180921.2
+
+    * Updated publicsuffix.file to the latest version from Mozilla.
+    * Breaking API change: publicsuffix module renamed to publicsuffix2
+
+
+2016-08-18    publicsuffix2 2.20160818
+
+    * Updated publicsuffix.file to the latest version from Mozilla.
+
+
+2016-06-21    publicsuffix2 2.20160621
+
+    * Updated publicsuffix.file to the latest version from Mozilla.
+    * new version scheme: major.<publisiffix list date>
+
+
 2016-06-21    publicsuffix2 2.20160621
 
     * Updated publicsuffix.file to the latest version from Mozilla.

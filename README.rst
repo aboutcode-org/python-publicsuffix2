@@ -5,7 +5,7 @@ This module allows you to get the public suffix of a domain name using the
 Public Suffix List from http://publicsuffix.org
 
 A public suffix is a domain suffix under which you can register domain
-names. Some examples of public suffixes are .com, .co.uk and pvt.k12.wy.us.
+names. Some examples of public suffixes are ".com", ".co.uk" and "pvt.k12.wy.us".
 Accurately knowing the public suffix of a domain is useful when handling
 web browser cookies, highlighting the most important part of a domain name
 in a user interface or sorting URLs by web site.
@@ -14,17 +14,17 @@ This Python module includes with a copy of the Public Suffix List so that it is
 usable out of the box. Newer versions try to provide reasonably fresh copies of
 this list. It also includes a convenience method to fetch the latest list.
 
-The code is a fork of the publicsuffix package and uses the same module name and
-base API.
+The code is a fork of the publicsuffix package and uses the same base API.
+You just need to import publicsuffix2 instead
 
 The code is MIT-licensed and the publicsuffix data list is MPL-2.0-licensed.
 
-.. image:: https://api.travis-ci.org/pombredanne/python-publixsuffix2.png?branch=master
-   :target: https://travis-ci.org/pombredanne/python-publixsuffix2
+.. image:: https://api.travis-ci.org/nexB/python-publicsuffix2.png?branch=master
+   :target: https://travis-ci.org/nexB/python-publicsuffix2
    :alt: master branch tests status
 
-.. image:: https://api.travis-ci.org/pombredanne/python-publixsuffix2.png?branch=develop
-   :target: https://travis-ci.org/pombredanne/python-publixsuffix2
+.. image:: https://api.travis-ci.org/nexB/python-publicsuffix2.png?branch=develop
+   :target: https://travis-ci.org/nexB/python-publicsuffix2
    :alt: develop branch tests status
 
 
@@ -37,7 +37,7 @@ Install with::
 
 The module provides a function to query a domain name::
 
-    >>> from publicsuffix import get_public_suffix
+    >>> from publicsuffix2 import get_public_suffix
     >>> get_public_suffix('www.example.com')
     'example.com'
     >>> get_public_suffix('www.example.co.uk')
@@ -47,11 +47,11 @@ The module provides a function to query a domain name::
 
 This function loads and caches the public suffix list.
 
-For more control and compatibility, there is also a class that parses a Public
+For more control, there is also a class that parses a Public
 Suffix List and allows the same queries on individual domain names::
 
-    >>> from publicsuffix import PublicSuffixList
-    >>> psl= PublicSuffixList()
+    >>> from publicsuffix2 import PublicSuffixList
+    >>> psl = PublicSuffixList()
     >>> psl.get_public_suffix('www.example.com')
     'example.com'
     >>> psl.get_public_suffix('www.example.co.uk')
@@ -66,20 +66,29 @@ caller to ensure only domain names are passed to the get_public_suffix()
 method.
 
 
-The get_public_suffix function and the PublicSuffixList class initializer accept
+The get_public_suffix() function and the PublicSuffixList class initializer accept
 an optional argument pointing to a public suffix file. This can either be a file
 path, an iterable of public suffix lines, or a file-like object pointing to an
-opened list. The fetch function fetches the latest list::
+opened list::
 
-    >>> from publicsuffix import get_public_suffix, fetch
-    >>> latest = fetch()
-    >>> get_public_suffix('www.example.com', latest)
+    >>> from publicsuffix import get_public_suffix
+    >>> psl_file = 'path to some psl data file'
+    >>> get_public_suffix('www.example.com', psl_file)
     'example.com'
 
-This will use the cached latest loaded above::
+Note that when using get_public_suffix() a global cache keeps the latest provided
+suffix list data.  This will use the cached latest loaded above::
 
     >>> get_public_suffix('www.example.co.uk')
     'example.co.uk'
+
+
+To update the bundled suffix list use the provided setup.py command::
+
+    python setup.py update_psl
+    
+The update list will be saved in `src/publicsuffix2/public_suffix_list.dat`
+and you can build a new wheel with this bundled data.
 
 
 
@@ -96,14 +105,18 @@ branch::
 History
 -------
 This code is forked from Tomaž Šolc's fork of David Wilson's code originally at:
+
 https://www.tablix.org/~avian/git/publicsuffix.git
+
 Copyright (c) 2014 Tomaž Šolc <tomaz.solc@tablix.org>
 
 The API is essentially the same as publicsuffix including using the same package
 name to allow a straight forward replacement.
 
 David Wilson's code was originally at:
+
 from http://code.google.com/p/python-public-suffix-list/
+
 Copyright (c) 2009 David Wilson
 
 
@@ -115,7 +128,9 @@ The vendored public suffix list data from Mozilla is under the MPL-2.0.
 
 
 Copyright (c) 2015 nexB Inc.
+
 Copyright (c) 2014 Tomaž Šolc <tomaz.solc@tablix.org>
+
 Copyright (c) 2009 David Wilson
   
 Permission is hereby granted, free of charge, to any person obtaining a

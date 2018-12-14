@@ -81,7 +81,7 @@ license_text_file: mpl-2.0.LICENSE
 
 setup(
     name='publicsuffix2',
-    version='2.20180921.2',
+    version='2.20181213',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix '
         'List. Forked from and using the same API as the publicsuffix package.',
@@ -94,7 +94,7 @@ setup(
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
     zip_safe=False,
-    install_requires = [
+    setup_requires = [
         'requests >= 2.7.0',
     ],
     classifiers=[

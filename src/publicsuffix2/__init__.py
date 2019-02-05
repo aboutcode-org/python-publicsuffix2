@@ -45,10 +45,18 @@ from contextlib import closing
 from datetime import datetime
 import os.path
 
+try:
+    from urllib.request import urlopen, Request
+except ImportError:
+    from urllib2 import urlopen, Request
+
+
+PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat'
 
 BASE_DIR = os.path.dirname(__file__)
 PSL_FILE = os.path.join(BASE_DIR, 'public_suffix_list.dat')
 ABOUT_PSL_FILE = os.path.join(BASE_DIR, 'public_suffix_list.ABOUT')
+
 
 
 class PublicSuffixList(object):
@@ -179,3 +187,19 @@ def get_public_suffix(domain, psl_file=None):
     global _PSL
     _PSL = _PSL or PublicSuffixList(psl_file)
     return _PSL.get_public_suffix(domain)
+
+
+
+def fetch():
+    """
+    Return a file-like object for the latest public suffix list downloaded from
+    publicsuffix.org
+    """
+    req = Request(PSL_URL, headers={'User-Agent': 'python-publicsuffix2'})
+    res = urlopen(req)
+    try:
+        encoding = res.headers.get_content_charset()
+    except AttributeError:
+        encoding = res.headers.getparam('charset')
+    f = codecs.getreader(encoding)(res)
+    return f

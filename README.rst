@@ -90,6 +90,18 @@ To update the bundled suffix list use the provided setup.py command::
 The update list will be saved in `src/publicsuffix2/public_suffix_list.dat`
 and you can build a new wheel with this bundled data.
 
+Alternatively, there is a fetch() function that will fetch the latest version
+of a Public Suffix data file from https://publicsuffix.org/list/public_suffix_list.dat
+You can use it this way::
+
+    >>> from publicsuffix import get_public_suffix
+    >>> from publicsuffix import fetch
+    >>> psl_file = fetch()
+    >>> get_public_suffix('www.example.com', psl_file)
+    'example.com'
+
+Note that the once loaded, the data file is cached and therefore fetched only
+once.
 
 
 Source

@@ -2,6 +2,12 @@ Changelog
 ---------
 
 
+2019-02-05    publicsuffix2 2.201902051213
+
+    * Updated publicsuffix.file to the latest version from Mozilla.
+    * Restored a fetch() function by popular demand
+
+
 2018-12-13    publicsuffix2 2.20181213
 
     * Updated publicsuffix.file to the latest version from Mozilla.

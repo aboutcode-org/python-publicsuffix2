@@ -89,7 +89,7 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'example.com' == psl.get_public_suffix('example.com.')
 
     def test_get_public_suffix_from_list_with_unicode(self):
-        psl = publicsuffix.PublicSuffixList([u('\u0440\u0444')])
+        psl = publicsuffix.PublicSuffixList([u('\u0440\u0444')], idna=False)
 
         assert u('\u0440\u0444') == psl.get_public_suffix(u('\u0440\u0444'))
         assert u('example.\u0440\u0444') == psl.get_public_suffix(u('example.\u0440\u0444'))
@@ -182,8 +182,49 @@ class TestPublicSuffixCurrent(unittest.TestCase):
         assert 'test.k12.ak.us' == psl.get_public_suffix('test.k12.ak.us')
         assert 'test.k12.ak.us' == psl.get_public_suffix('www.test.k12.ak.us')
 
-        # unicode
-        assert u('www.\u9999\u6e2f') == psl.get_public_suffix(u('www.\u9999\u6e2f'))
+
+class TestPublicSuffixIdna(unittest.TestCase):
+
+    def test_idna_encoded(self):
+        psl = publicsuffix.PublicSuffixList(idna=True)  # actually the default
+        assert 'xn--85x722f.com.cn' == psl.get_public_suffix('xn--85x722f.com.cn')
+        assert 'xn--85x722f.xn--55qx5d.cn' == psl.get_public_suffix('xn--85x722f.xn--55qx5d.cn')
+        assert 'xn--85x722f.xn--55qx5d.cn' == psl.get_public_suffix('www.xn--85x722f.xn--55qx5d.cn')
+        assert 'shishi.xn--55qx5d.cn' == psl.get_public_suffix('shishi.xn--55qx5d.cn')
+
+    def test_utf8_encoded(self):
+        psl = publicsuffix.PublicSuffixList(idna=False)  # uses the list provided utf-8 defaults
+        assert '食狮.com.cn' == psl.get_public_suffix('食狮.com.cn')
+        assert '食狮.公司.cn' == psl.get_public_suffix('食狮.公司.cn')
+        assert '食狮.公司.cn' == psl.get_public_suffix('www.食狮.公司.cn')
+        assert 'shishi.公司.cn' == psl.get_public_suffix('shishi.公司.cn')
+
+    def test_exceptions(self):
+        psl = publicsuffix.PublicSuffixList()
+        assert 'www.ck' == psl.get_public_suffix('www.www.ck')  # www is the exception
+        assert 'this.that.ck' == psl.get_public_suffix('this.that.ck')
+
+    def test_no_wildcard(self):
+        psl = publicsuffix.PublicSuffixList()
+        # test completion when no wildcards should be processed
+        assert 'com.pg' == psl.get_public_suffix('telinet.com.pg', wildcard=False)
+        assert 'ap-southeast-1.elb.amazonaws.com' == psl.get_public_suffix('blah.ap-southeast-1.elb.amazonaws.com',
+                                                                           wildcard=False)
+
+    def test_convenience_functions(self):
+        psl = publicsuffix.PublicSuffixList()
+        # these functions should be identical
+        assert psl.get_sld('www.google.com') == psl.get_public_suffix('www.google.com')
+        assert psl.get_sld('www.test.ak.us') == psl.get_public_suffix('www.test.ak.us')
+
+    def test_tld_function(self):
+        psl = publicsuffix.PublicSuffixList()
+        # checks that the eTLD or TLD is produced
+        assert psl.get_tld('com') == 'com'
+        assert psl.get_tld('telinet.com.pg', wildcard=True) == 'com.pg'
+        assert psl.get_tld('telinet.com.pg', wildcard=False) == 'pg'
+        assert psl.get_tld('telinet.co.uk', wildcard=False) == 'co.uk'
+        assert psl.get_tld('blah.local', strict=True) is None
 
 
 if __name__ == '__main__':

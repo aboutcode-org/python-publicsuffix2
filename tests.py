@@ -194,10 +194,10 @@ class TestPublicSuffixIdna(unittest.TestCase):
 
     def test_utf8_encoded(self):
         psl = publicsuffix.PublicSuffixList(idna=False)  # uses the list provided utf-8 defaults
-        assert '食狮.com.cn' == psl.get_public_suffix('食狮.com.cn')
-        assert '食狮.公司.cn' == psl.get_public_suffix('食狮.公司.cn')
-        assert '食狮.公司.cn' == psl.get_public_suffix('www.食狮.公司.cn')
-        assert 'shishi.公司.cn' == psl.get_public_suffix('shishi.公司.cn')
+        assert u'食狮.com.cn' == psl.get_public_suffix(u'食狮.com.cn')
+        assert u'食狮.公司.cn' == psl.get_public_suffix(u'食狮.公司.cn')
+        assert u'食狮.公司.cn' == psl.get_public_suffix(u'www.食狮.公司.cn')
+        assert u'shishi.公司.cn' == psl.get_public_suffix(u'shishi.公司.cn')
 
     def test_exceptions(self):
         psl = publicsuffix.PublicSuffixList()

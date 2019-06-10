@@ -15,20 +15,18 @@ This module builds the public suffix list as a Trie structure, making it more ef
 than other string-based modules available for the same purpose. It can be used
 effectively in large-scale distributed environments, such as PySpark.
 
-This Python module includes with a copy of the Public Suffix List so that it is
+This Python module includes with a copy of the Public Suffix List (PSL) so that it is
 usable out of the box. Newer versions try to provide reasonably fresh copies of
-this list. It also includes a convenience method to fetch the latest list.
+this list. It also includes a convenience method to fetch the latest list. The PSL does
+change regularly.
 
-The code is a fork of the publicsuffix2 package and includes the same base API. In
+The code is a fork of the publicsuffix package and includes the same base API. In
 addition, it contains a few variants useful for certain use cases, such as the option to
-ignore wildcards or return only the extended TLD (eTLD).
-Publicsuffix2 is a an extension of publicsuffix, and uses the same base API.
-You just need to import publicsuffix2 instead.
+ignore wildcards or return only the extended TLD (eTLD). You just need to import publicsuffix2 instead.
 
 The public suffix list is now provided in UTF-8 format. To correctly process
-IDNA-encoded domains, either the query or the list must be converted. This module
-contains the option to IDNA-encode the public suffix list upon creating the Trie; this
-is set to happen by default. If your use case includes UTF-8 domains, e.g., '食狮.com.cn',
+IDNA-encoded domains, either the query or the list must be converted. By default, the
+module converts the PSL. If your use case includes UTF-8 domains, e.g., '食狮.com.cn',
 you'll need to set the IDNA-encoding flag to False on instantiation (see examples below).
 Failure to use the correct encoding for your use case can lead to incorrect results for
 domains that utilize unicode characters.
@@ -43,29 +41,34 @@ The code is MIT-licensed and the publicsuffix data list is MPL-2.0-licensed.
    :target: https://travis-ci.org/nexB/python-publicsuffix2
    :alt: develop branch tests status
 
-
 Usage
 -----
-
-To install from source, first build the package file:
-    python setup.py build sdist
-and then pip install from the dist directory.
 
 Install with::
 
     pip install publicsuffix2
 
-The module provides a function to query a domain name::
+The module provides functions to obtain the base domain, or sld, of an fqdn, as well as one
+to get just the public suffix. In addition, the functions a number of boolean parameters that
+control how wildcards are handled. In addition to the functions, the module exposes a class that
+parses the PSL, and allows for more control.
+
+The module provides two equivalent functions to query a domain name, and return the base domain,
+or second-level-doamin; get_public_suffix() and get_sld()::
 
     >>> from publicsuffix2 import get_public_suffix
     >>> get_public_suffix('www.example.com')
+    'example.com'
+    >>> get_sld('www.example.com')
     'example.com'
     >>> get_public_suffix('www.example.co.uk')
     'example.co.uk'
     >>> get_public_suffix('www.super.example.co.uk')
     'example.co.uk'
 
-This function loads and caches the public suffix list.
+This function loads and caches the public suffix list. To obtain the latest version of the
+PSL, use the fetch() function to first download the latest version. Alternatively, you can pass
+a custom list.
 
 For more control, there is also a class that parses a Public
 Suffix List and allows the same queries on individual domain names::
@@ -85,7 +88,6 @@ combination with a port number or a username, etc.). It is up to the
 caller to ensure only domain names are passed to the get_public_suffix()
 method.
 
-
 The get_public_suffix() function and the PublicSuffixList class initializer accept
 an optional argument pointing to a public suffix file. This can either be a file
 path, an iterable of public suffix lines, or a file-like object pointing to an
@@ -102,11 +104,54 @@ suffix list data.  This will use the cached latest loaded above::
     >>> get_public_suffix('www.example.co.uk')
     'example.co.uk'
 
+IDNA-encoding. The public suffix list is now in UTF-8 format. For those use cases that
+include IDNA-encoded domains, the list must be converted. Publicsuffix2 includes idna
+encoding as a parameter of the PublicSuffixList initialization and is true by
+default. For UTF-8 use cases, set the idna parameter to False::
+
+    >>> from publicsuffix2 import PublicSuffixList
+    >>> psl = PublicSuffixList(idna=True)  # on by default
+    >>> psl.get_public_suffix('www.google.com')
+    'google.com'
+    >>> psl = PublicSuffixList(idna=False)  # use UTF-8 encodings
+    >>> psl.get_public_suffix('食狮.com.cn')
+    '食狮.com.cn'
+
+Ignore wildcards. In some use cases, particularly those related to large-scale domain processing,
+the user might want to ignore wildcards to create more aggregation. This is possible by setting
+the parameter wildcard=False.
+
+Require valid eTLDs (strict). In the publicsuffix2 module, a domain with an invalid TLD will still return
+return a base domain, e.g,::
+
+    >>> psl.get_public_suffix('www.mine.local')
+    'mine.local'
+
+
+This is useful for many use cases, while in others, we want to ensure that the domain includes a
+valid eTLD. In this case, the boolean parameter strict provides a solution. If this flag is set,
+an invalid TLD will return None.::
+
+    >>> psl.get_public_suffix('www.mine.local', strict=True) is None
+    True
+
+Return eTLD only. The standard use case for publicsuffix2 is to return the registrable,
+or base, domain
+according to the public suffix list. In some cases, however, we only wish to find the eTLD
+itself. In this fork, this is available via the get_tld() method.::
+
+    >>> psl.get_tld('www.google.com')
+    'com'
+
+All of the methods and functions include the wildcard and strict parameters.
+
+For convenience, the public method get_sld() is available. This is identical to the method
+get_public_suffix() and is intended to clarify the output for some users.
 
 To update the bundled suffix list use the provided setup.py command::
 
     python setup.py update_psl
-    
+
 The update list will be saved in `src/publicsuffix2/public_suffix_list.dat`
 and you can build a new wheel with this bundled data.
 
@@ -127,64 +172,10 @@ If using this library in large-scale pyspark processing, you should instantiate 
 a global variable, not within a user function. The class methods can then be used within user
 functions for distributed processing.
 
-Changes in this Fork
---------------------
-
-This fork of publicsuffix2 addresses a change in the format to the standard public suffix list,
-which was previously IDNA-encoded and now is in UTF-8 format, as well as some additional
-functionality useful to certain use cases. These additions include the ability to ignore
-wildcards and to require strict adherence to the TLDs included in the list. Lastly, we include
-some convenience functions for obtaining only the extended TLD (eTLD) rather than the
-registrable domain (SLD). These are outlined below.
-
-IDNA-encoding. The public suffix list is now provided in UTF-8 format. For those use cases that
-include IDNA-encoded domains, the module will not return accurate results unless the list is
-converted. In this fork, IDNA encoding is included as a parameter in the class and is on by
-default.::
-
-    >>> from publicsuffix2 import PublicSuffixList
-    >>> psl = PublicSuffixList(idna=True)  # on by default
-    >>> psl.get_public_suffix('www.google.com')
-    'google.com'
-    >>> psl = PublicSuffixList(idna=False)  # use UTF-8 encodings
-    >>> psl.get_public_suffix('食狮.com.cn')
-    '食狮.com.cn'
-
-Ignore wildcards. In some use cases, particularly those related to large-scale domain processing,
-the user might want to ignore wildcards to create more aggregation. This is possible by setting
-the parameter wildcard=False.
-
-Require valid eTLDs (strict). In the publicsuffix2 module, a domain with an invalid TLD will still return
-a public suffix, e.g,::
-
-    >>> psl.get_public_suffix('www.mine.local')
-    'mine.local'
-
-
-This is useful for many use cases, while in others, we want to ensure that the domain includes a
-valid eTLD. In this case, the boolean parameter strict provides a solution. If this flag is set,
-an invalid TLD will return None.::
-
-    >>> psl.get_public_suffix('www.mine.local', strict=True) is None
-    True
-
-Return eTLD only. The standard use case for publicsuffix2 is to return the registrable domain
-according to the public suffix list. In some cases, however, we only wish to find the eTLD
-itself. In this fork, this is available via the get_tld() method.::
-
-    >>> psl.get_tld('www.google.com')
-    'com'
-
-All of the methods and functions include the wildcard and strict parameters.
-
-For convenience, the public method get_sld() is available. This is identical to the method
-get_public_suffix() and is intended to clarify the output for some users.
-
-
 Source
 ------
 
-Get a local copy of the development repository. The development takes 
+Get a local copy of the development repository. The development takes
 place in the ``develop`` branch. Stable releases are tagged in the ``master``
 branch::
 
@@ -193,18 +184,13 @@ branch::
 
 History
 -------
-This code is forked from NexB's fork of Tomaž Šolc's fork of David Wilson's code.
-
-The original publicsuffix2 code is Copyright (c) 2015 nexB Inc.
+This code is forked from Tomaž Šolc's fork of David Wilson's code.
 
 David Wilson's code originally at:
 
 https://www.tablix.org/~avian/git/publicsuffix.git
 
 Copyright (c) 2014 Tomaž Šolc <tomaz.solc@tablix.org>
-
-The API is essentially the same as publicsuffix including using the same package
-name to allow a straight forward replacement.
 
 David Wilson's code was originally at:
 
@@ -216,27 +202,25 @@ Copyright (c) 2009 David Wilson
 License
 -------
 
-The code is MIT-licensed. 
+The code is MIT-licensed.
 The vendored public suffix list data from Mozilla is under the MPL-2.0.
-
-Copyright (c) 2019 Renée Burton
 
 Copyright (c) 2015 nexB Inc.
 
 Copyright (c) 2014 Tomaž Šolc <tomaz.solc@tablix.org>
 
 Copyright (c) 2009 David Wilson
-  
+
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
 to deal in the Software without restriction, including without limitation
 the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
-  
+
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
-  
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

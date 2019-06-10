@@ -2,7 +2,7 @@ Public Suffix List module for Python
 ====================================
 
 This module allows you to get the public suffix, as well as the registrable domain,
- of a domain name using the Public Suffix List from http://publicsuffix.org
+of a domain name using the Public Suffix List from http://publicsuffix.org
 
 A public suffix is a domain suffix under which you can register domain
 names. It is sometimes referred to as the extended TLD (eTLD).

@@ -85,6 +85,8 @@ Suffix List and allows the same queries on individual domain names::
     'example.co.uk'
     >>> psl.get_public_suffix('www.super.example.co.uk')
     'example.co.uk'
+    >>> psl.get_sld('www.super.example.co.uk')
+    'example.co.uk'
 
 Note that the ``host`` part of an URL can contain strings that are
 not plain DNS domain names (IP addresses, Punycode-encoded names, name in
@@ -108,7 +110,7 @@ suffix list data.  This will use the cached latest loaded above::
     >>> get_public_suffix('www.example.co.uk')
     'example.co.uk'
 
-IDNA-encoding. The public suffix list is now in UTF-8 format. For those use cases that
+**IDNA-encoding.** The public suffix list is now in UTF-8 format. For those use cases that
 include IDNA-encoded domains, the list must be converted. Publicsuffix2 includes idna
 encoding as a parameter of the PublicSuffixList initialization and is true by
 default. For UTF-8 use cases, set the idna parameter to False::
@@ -121,16 +123,20 @@ default. For UTF-8 use cases, set the idna parameter to False::
     >>> psl.get_public_suffix('食狮.com.cn')
     '食狮.com.cn'
 
-Ignore wildcards. In some use cases, particularly those related to large-scale domain processing,
+**Ignore wildcards.** In some use cases, particularly those related to large-scale domain processing,
 the user might want to ignore wildcards to create more aggregation. This is possible by setting
-the parameter wildcard=False.
+the parameter wildcard=False.::
 
-Require valid eTLDs (strict). In the publicsuffix2 module, a domain with an invalid TLD will still return
+    >>> psl.get_public_suffix('telinet.com.pg', wildcard=False)
+    'com.pg'
+    >>> psl.get_public_suffix('telinet.com.pg', wildcard=True)
+    'telinet.com.pg'
+
+**Require valid eTLDs (strict).** In the publicsuffix2 module, a domain with an invalid TLD will still return
 return a base domain, e.g,::
 
     >>> psl.get_public_suffix('www.mine.local')
     'mine.local'
-
 
 This is useful for many use cases, while in others, we want to ensure that the domain includes a
 valid eTLD. In this case, the boolean parameter strict provides a solution. If this flag is set,
@@ -139,20 +145,22 @@ an invalid TLD will return None.::
     >>> psl.get_public_suffix('www.mine.local', strict=True) is None
     True
 
-Return eTLD only. The standard use case for publicsuffix2 is to return the registrable,
+**Return eTLD only.** The standard use case for publicsuffix2 is to return the registrable,
 or base, domain
 according to the public suffix list. In some cases, however, we only wish to find the eTLD
-itself. In this fork, this is available via the get_tld() method.::
+itself. This is available via the get_tld() method.::
 
     >>> psl.get_tld('www.google.com')
     'com'
+    >>> psl.get_tld('www.google.co.uk')
+    'co.uk'
 
 All of the methods and functions include the wildcard and strict parameters.
 
 For convenience, the public method get_sld() is available. This is identical to the method
 get_public_suffix() and is intended to clarify the output for some users.
 
-To update the bundled suffix list use the provided setup.py command::
+To **update the bundled suffix list** use the provided setup.py command::
 
     python setup.py update_psl
 

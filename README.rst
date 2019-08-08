@@ -99,7 +99,7 @@ an optional argument pointing to a public suffix file. This can either be a file
 path, an iterable of public suffix lines, or a file-like object pointing to an
 opened list::
 
-    >>> from publicsuffix import get_public_suffix
+    >>> from publicsuffix2 import get_public_suffix
     >>> psl_file = 'path to some psl data file'
     >>> get_public_suffix('www.example.com', psl_file)
     'example.com'
@@ -171,8 +171,8 @@ Alternatively, there is a fetch() function that will fetch the latest version
 of a Public Suffix data file from https://publicsuffix.org/list/public_suffix_list.dat
 You can use it this way::
 
-    >>> from publicsuffix import get_public_suffix
-    >>> from publicsuffix import fetch
+    >>> from publicsuffix2 import get_public_suffix
+    >>> from publicsuffix2 import fetch
     >>> psl_file = fetch()
     >>> get_public_suffix('www.example.com', psl_file)
     'example.com'
@@ -180,6 +180,18 @@ You can use it this way::
 Note that the once loaded, the data file is cached and therefore fetched only
 once.
 
+The extracted public suffix list, that is the tlds and their modifiers, is put into
+an instance variable, tlds, which can be accessed as an attribute, tlds.::
+
+    >>> psl = PublicSuffixList()
+    >>> psl.tlds[:5]
+    ['ac',
+    'com.ac',
+    'edu.ac',
+    'gov.ac',
+    'net.ac']
+
+**Using the module in large-scale processing**
 If using this library in large-scale pyspark processing, you should instantiate the class as
 a global variable, not within a user function. The class methods can then be used within user
 functions for distributed processing.

@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+2019-08-08    publicsuffix2 2.20190808
+
+    * adds additional functionality and handles change to PSL format
+    * adds attribute to retrieve the PSL as a list
 
 2019-02-05    publicsuffix2 2.201902051213
 

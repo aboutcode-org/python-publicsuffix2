@@ -177,6 +177,7 @@ class PublicSuffixList(object):
                 continue
             if idna:
                 line = line.encode('idna').decode()
+            tlds.append(line)
 
             self._add_rule(root, line.split()[0].lstrip('.'))
 

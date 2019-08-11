@@ -81,14 +81,15 @@ license_text_file: mpl-2.0.LICENSE
 
 setup(
     name='publicsuffix2',
-    version='2.20190205',
+    version='2.20190808',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix '
         'List. Forked from and using the same API as the publicsuffix package.',
+    long_description_content_type = 'text/x-rst',
     long_description='%s\n%s' % (read('README.rst'), read('CHANGELOG.rst')),
     author='nexB Inc., Tomaz Solc and David Wilson',
     author_email='info@nexb.com',
-    url='https://github.com/nexB/python-publicsuffix2',
+    url='https://github.com/nexb/python-publicsuffix2',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -109,7 +110,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
     ],
     keywords=[
-        'domain', 'public suffix', 'suffix', 'dns', 'tld',
+        'domain', 'public suffix', 'suffix', 'dns', 'tld', 'sld', 'psl',
     ],
     cmdclass={'update_psl': UpdatePslCommand},
 )

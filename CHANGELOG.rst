@@ -1,43 +1,43 @@
 Changelog
 ---------
 
+2019-08-11   publicsuffix2 2.20190811
+
+    * Update publicsuffix.file to the latest version from Mozilla.
+
+
 2019-08-08    publicsuffix2 2.20190808
 
-    * adds additional functionality and handles change to PSL format
-    * adds attribute to retrieve the PSL as a list
+    * Add additional functionality and handles change to PSL format
+    * Add attribute to retrieve the PSL as a list
+
 
 2019-02-05    publicsuffix2 2.201902051213
 
-    * Updated publicsuffix.file to the latest version from Mozilla.
-    * Restored a fetch() function by popular demand
+    * Update publicsuffix.file to the latest version from Mozilla.
+    * Restore a fetch() function by popular demand
 
 
 2018-12-13    publicsuffix2 2.20181213
 
-    * Updated publicsuffix.file to the latest version from Mozilla.
+    * Update publicsuffix.file to the latest version from Mozilla.
 
 
 2018-10-01    publicsuffix2 2.20180921.2
 
-    * Updated publicsuffix.file to the latest version from Mozilla.
+    * Update publicsuffix.file to the latest version from Mozilla.
     * Breaking API change: publicsuffix module renamed to publicsuffix2
 
 
 2016-08-18    publicsuffix2 2.20160818
 
-    * Updated publicsuffix.file to the latest version from Mozilla.
+    * Update publicsuffix.file to the latest version from Mozilla.
 
 
 2016-06-21    publicsuffix2 2.20160621
 
-    * Updated publicsuffix.file to the latest version from Mozilla.
-    * new version scheme: major.<publisiffix list date>
-
-
-2016-06-21    publicsuffix2 2.20160621
-
-    * Updated publicsuffix.file to the latest version from Mozilla.
-    * new version scheme: major.<publisiffix list date>
+    * Update publicsuffix.file to the latest version from Mozilla.
+    * Adopt new version scheme: major.<publisiffix list date>
 
 
 2015-10-12    publicsuffix2 2.1.0

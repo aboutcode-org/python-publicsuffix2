@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2015 nexB Inc.
+# Copyright (c) nexB Inc. and others.
 # This code is based on Tomaž Šolc's fork of David Wilson's code originally at
 # https://www.tablix.org/~avian/git/publicsuffix.git
 #
@@ -226,6 +226,9 @@ class TestPublicSuffixIdna(unittest.TestCase):
         assert psl.get_tld('telinet.co.uk', wildcard=False) == 'co.uk'
         assert psl.get_tld('blah.local', strict=True) is None
 
+    def test_tlds_are_loaded_correctly(self):
+        psl = publicsuffix.PublicSuffixList()
+        assert psl.tlds
 
 if __name__ == '__main__':
     unittest.main('tests')

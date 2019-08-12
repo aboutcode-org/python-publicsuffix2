@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+2019-08-12   publicsuffix2 2.20190812
+
+    * Fix regression in available tlds.
+    * Format and streamline code.
+
+
 2019-08-11   publicsuffix2 2.20190811
 
     * Update publicsuffix.file to the latest version from Mozilla.

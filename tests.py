@@ -53,48 +53,43 @@ else:
 
 class TestPublicSuffix(unittest.TestCase):
 
-    def test_get_public_suffix_from_empty_list(self):
+    def test_get_sld_from_empty_list(self):
         psl = publicsuffix.PublicSuffixList([])
+        assert 'com' == psl.get_sld('com')
+        assert 'com' == psl.get_sld('COM')
+        assert 'com' == psl.get_sld('.com')
+        assert 'com' == psl.get_sld('a.example.com')
 
-        assert 'com' == psl.get_public_suffix('com')
-        assert 'com' == psl.get_public_suffix('COM')
-        assert 'com' == psl.get_public_suffix('.com')
-        assert 'com' == psl.get_public_suffix('a.example.com')
-
-    def test_get_public_suffix_from_list(self):
+    def test_get_sld_from_list(self):
         psl = publicsuffix.PublicSuffixList(['com'])
+        assert 'example.com' == psl.get_sld('a.example.com')
+        assert 'example.com' == psl.get_sld('a.a.example.com')
+        assert 'example.com' == psl.get_sld('a.a.a.example.com')
+        assert 'example.com' == psl.get_sld('A.example.com')
+        assert 'example.com' == psl.get_sld('.a.a.example.com')
 
-        assert 'example.com' == psl.get_public_suffix('a.example.com')
-        assert 'example.com' == psl.get_public_suffix('a.a.example.com')
-        assert 'example.com' == psl.get_public_suffix('a.a.a.example.com')
-        assert 'example.com' == psl.get_public_suffix('A.example.com')
-        assert 'example.com' == psl.get_public_suffix('.a.a.example.com')
-
-    def test_get_public_suffix_from_list_with_exception_rule(self):
+    def test_get_sld_from_list_with_exception_rule(self):
         psl = publicsuffix.PublicSuffixList(['*.example.com', '!b.example.com'])
+        assert 'a.example.com' == psl.get_sld('a.example.com')
+        assert 'a.a.example.com' == psl.get_sld('a.a.example.com')
+        assert 'a.a.example.com' == psl.get_sld('a.a.a.example.com')
+        assert 'a.a.example.com' == psl.get_sld('a.a.a.a.example.com')
 
-        assert 'a.example.com' == psl.get_public_suffix('a.example.com')
-        assert 'a.a.example.com' == psl.get_public_suffix('a.a.example.com')
-        assert 'a.a.example.com' == psl.get_public_suffix('a.a.a.example.com')
-        assert 'a.a.example.com' == psl.get_public_suffix('a.a.a.a.example.com')
+        assert 'b.example.com' == psl.get_sld('b.example.com')
+        assert 'b.example.com' == psl.get_sld('b.b.example.com')
+        assert 'b.example.com' == psl.get_sld('b.b.b.example.com')
+        assert 'b.example.com' == psl.get_sld('b.b.b.b.example.com')
 
-        assert 'b.example.com' == psl.get_public_suffix('b.example.com')
-        assert 'b.example.com' == psl.get_public_suffix('b.b.example.com')
-        assert 'b.example.com' == psl.get_public_suffix('b.b.b.example.com')
-        assert 'b.example.com' == psl.get_public_suffix('b.b.b.b.example.com')
-
-    def test_get_public_suffix_from_list_with_fqdn(self):
+    def test_get_sld_from_list_with_fqdn(self):
         psl = publicsuffix.PublicSuffixList(['com'])
+        assert 'example.com' == psl.get_sld('example.com.')
 
-        assert 'example.com' == psl.get_public_suffix('example.com.')
-
-    def test_get_public_suffix_from_list_with_unicode(self):
+    def test_get_sld_from_list_with_unicode(self):
         psl = publicsuffix.PublicSuffixList([u('\u0440\u0444')], idna=False)
-
-        assert u('\u0440\u0444') == psl.get_public_suffix(u('\u0440\u0444'))
-        assert u('example.\u0440\u0444') == psl.get_public_suffix(u('example.\u0440\u0444'))
-        assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.example.\u0440\u0444'))
-        assert u('example.\u0440\u0444') == psl.get_public_suffix(u('a.a.example.\u0440\u0444'))
+        assert u('\u0440\u0444') == psl.get_sld(u('\u0440\u0444'))
+        assert u('example.\u0440\u0444') == psl.get_sld(u('example.\u0440\u0444'))
+        assert u('example.\u0440\u0444') == psl.get_sld(u('a.example.\u0440\u0444'))
+        assert u('example.\u0440\u0444') == psl.get_sld(u('a.a.example.\u0440\u0444'))
 
     def test_get_public_suffix_from_builtin_full_publicsuffix_org_using_func(self):
         assert 'com' == publicsuffix.get_public_suffix('COM')
@@ -102,120 +97,135 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'example.com' == publicsuffix.get_public_suffix('WwW.example.COM')
 
 
-class TestPublicSuffixCurrent(unittest.TestCase):
-    """Test using the vendored list"""
-    psl = None
+class TestPublicSuffixUsingTheCurrentVendoredPSL(unittest.TestCase):
 
-    def test_get_public_suffix_from_builtin_full_publicsuffix_org(self):
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_mixed_case(self):
         psl = publicsuffix.PublicSuffixList(None)
+        assert 'com' == psl.get_sld('COM')
+        assert 'example.com' == psl.get_sld('example.COM')
+        assert 'example.com' == psl.get_sld('WwW.example.COM')
 
-        # Mixed case.
-        assert 'com' == psl.get_public_suffix('COM')
-        assert 'example.com' == psl.get_public_suffix('example.COM')
-        assert 'example.com' == psl.get_public_suffix('WwW.example.COM')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_leading_dot(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'com' == psl.get_sld('.com')
+        assert 'example' == psl.get_sld('.example')
+        assert 'example.com' == psl.get_sld('.example.com')
+        assert 'example' == psl.get_sld('.example.example')
 
-        # Leading dot.
-        assert 'com' == psl.get_public_suffix('.com')
-        assert 'example' == psl.get_public_suffix('.example')
-        assert 'example.com' == psl.get_public_suffix('.example.com')
-        assert 'example' == psl.get_public_suffix('.example.example')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_unlisted_tld(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'example' == psl.get_sld('example')
+        assert 'example' == psl.get_sld('example.example')
+        assert 'example' == psl.get_sld('b.example.example')
+        assert 'example' == psl.get_sld('a.b.example.example')
 
-        # Unlisted TLD.
-        assert 'example' == psl.get_public_suffix('example')
-        assert 'example' == psl.get_public_suffix('example.example')
-        assert 'example' == psl.get_public_suffix('b.example.example')
-        assert 'example' == psl.get_public_suffix('a.b.example.example')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_listed_ut_non_internet_tld(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'local' == psl.get_sld('local')
+        assert 'local' == psl.get_sld('example.local')
+        assert 'local' == psl.get_sld('b.example.local')
+        assert 'local' == psl.get_sld('a.b.example.local')
 
-        # Listed, but non-Internet, TLD.
-        assert 'local' == psl.get_public_suffix('local')
-        assert 'local' == psl.get_public_suffix('example.local')
-        assert 'local' == psl.get_public_suffix('b.example.local')
-        assert 'local' == psl.get_public_suffix('a.b.example.local')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_one_rule(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'biz' == psl.get_sld('biz')
+        assert 'domain.biz' == psl.get_sld('domain.biz')
+        assert 'domain.biz' == psl.get_sld('b.domain.biz')
+        assert 'domain.biz' == psl.get_sld('a.b.domain.biz')
 
-        # TLD with only one rule.
-        assert 'biz' == psl.get_public_suffix('biz')
-        assert 'domain.biz' == psl.get_public_suffix('domain.biz')
-        assert 'domain.biz' == psl.get_public_suffix('b.domain.biz')
-        assert 'domain.biz' == psl.get_public_suffix('a.b.domain.biz')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_two_level_rules(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'com' == psl.get_sld('com')
+        assert 'example.com' == psl.get_sld('example.com')
+        assert 'example.com' == psl.get_sld('b.example.com')
+        assert 'example.com' == psl.get_sld('a.b.example.com')
 
-        # TLD with some two-level rules.
-        assert 'com' == psl.get_public_suffix('com')
-        assert 'example.com' == psl.get_public_suffix('example.com')
-        assert 'example.com' == psl.get_public_suffix('b.example.com')
-        assert 'example.com' == psl.get_public_suffix('a.b.example.com')
-        assert 'uk.com' == psl.get_public_suffix('uk.com')
-        assert 'example.uk.com' == psl.get_public_suffix('example.uk.com')
-        assert 'example.uk.com' == psl.get_public_suffix('b.example.uk.com')
-        assert 'example.uk.com' == psl.get_public_suffix('a.b.example.uk.com')
-        assert 'test.ac' == psl.get_public_suffix('test.ac')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_two_level_uk_rules(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'uk.com' == psl.get_sld('uk.com')
+        assert 'example.uk.com' == psl.get_sld('example.uk.com')
+        assert 'example.uk.com' == psl.get_sld('b.example.uk.com')
+        assert 'example.uk.com' == psl.get_sld('a.b.example.uk.com')
+        assert 'test.ac' == psl.get_sld('test.ac')
 
-        # TLD with only one wildcard rule.
-        assert 'er' == psl.get_public_suffix('er')
-        assert 'c.er' == psl.get_public_suffix('c.er')
-        assert 'b.c.er' == psl.get_public_suffix('b.c.er')
-        assert 'b.c.er' == psl.get_public_suffix('a.b.c.er')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_wildcard_rule(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'er' == psl.get_sld('er')
+        assert 'c.er' == psl.get_sld('c.er')
+        assert 'b.c.er' == psl.get_sld('b.c.er')
+        assert 'b.c.er' == psl.get_sld('a.b.c.er')
 
-        # More complex TLD.
-        assert 'jp' == psl.get_public_suffix('jp')
-        assert 'test.jp' == psl.get_public_suffix('test.jp')
-        assert 'test.jp' == psl.get_public_suffix('www.test.jp')
-        assert 'ac.jp' == psl.get_public_suffix('ac.jp')
-        assert 'test.ac.jp' == psl.get_public_suffix('test.ac.jp')
-        assert 'test.ac.jp' == psl.get_public_suffix('www.test.ac.jp')
-        assert 'kobe.jp' == psl.get_public_suffix('kobe.jp')
-        assert 'c.kobe.jp' == psl.get_public_suffix('c.kobe.jp')
-        assert 'b.c.kobe.jp' == psl.get_public_suffix('b.c.kobe.jp')
-        assert 'b.c.kobe.jp' == psl.get_public_suffix('a.b.c.kobe.jp')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_japanese_domain(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'jp' == psl.get_sld('jp')
+        assert 'test.jp' == psl.get_sld('test.jp')
+        assert 'test.jp' == psl.get_sld('www.test.jp')
+        assert 'ac.jp' == psl.get_sld('ac.jp')
+        assert 'test.ac.jp' == psl.get_sld('test.ac.jp')
+        assert 'test.ac.jp' == psl.get_sld('www.test.ac.jp')
+        assert 'kobe.jp' == psl.get_sld('kobe.jp')
+        assert 'c.kobe.jp' == psl.get_sld('c.kobe.jp')
+        assert 'b.c.kobe.jp' == psl.get_sld('b.c.kobe.jp')
+        assert 'b.c.kobe.jp' == psl.get_sld('a.b.c.kobe.jp')
 
-        # Exception rule.
-        assert 'city.kobe.jp' == psl.get_public_suffix('city.kobe.jp')
-        assert 'city.kobe.jp' == psl.get_public_suffix('www.city.kobe.jp')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_japanese_domain_exception_rule(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'city.kobe.jp' == psl.get_sld('city.kobe.jp')
+        assert 'city.kobe.jp' == psl.get_sld('www.city.kobe.jp')
 
-        # US K12.
-        assert 'us' == psl.get_public_suffix('us')
-        assert 'test.us' == psl.get_public_suffix('test.us')
-        assert 'test.us' == psl.get_public_suffix('www.test.us')
-        assert 'ak.us' == psl.get_public_suffix('ak.us')
-        assert 'test.ak.us' == psl.get_public_suffix('test.ak.us')
-        assert 'test.ak.us' == psl.get_public_suffix('www.test.ak.us')
-        assert 'k12.ak.us' == psl.get_public_suffix('k12.ak.us')
-        assert 'test.k12.ak.us' == psl.get_public_suffix('test.k12.ak.us')
-        assert 'test.k12.ak.us' == psl.get_public_suffix('www.test.k12.ak.us')
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_ys(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'us' == psl.get_sld('us')
+        assert 'test.us' == psl.get_sld('test.us')
+        assert 'test.us' == psl.get_sld('www.test.us')
+
+    def test_get_sld_from_builtin_full_publicsuffix_org_list_with_us_k12(self):
+        psl = publicsuffix.PublicSuffixList(None)
+        assert 'ak.us' == psl.get_sld('ak.us')
+        assert 'test.ak.us' == psl.get_sld('test.ak.us')
+        assert 'test.ak.us' == psl.get_sld('www.test.ak.us')
+        assert 'k12.ak.us' == psl.get_sld('k12.ak.us')
+        assert 'test.k12.ak.us' == psl.get_sld('test.k12.ak.us')
+        assert 'test.k12.ak.us' == psl.get_sld('www.test.k12.ak.us')
 
 
 class TestPublicSuffixIdna(unittest.TestCase):
 
     def test_idna_encoded(self):
-        psl = publicsuffix.PublicSuffixList(idna=True)  # actually the default
-        assert 'xn--85x722f.com.cn' == psl.get_public_suffix('xn--85x722f.com.cn')
-        assert 'xn--85x722f.xn--55qx5d.cn' == psl.get_public_suffix('xn--85x722f.xn--55qx5d.cn')
-        assert 'xn--85x722f.xn--55qx5d.cn' == psl.get_public_suffix('www.xn--85x722f.xn--55qx5d.cn')
-        assert 'shishi.xn--55qx5d.cn' == psl.get_public_suffix('shishi.xn--55qx5d.cn')
+        # actually the default
+        psl = publicsuffix.PublicSuffixList(idna=True)
+        assert 'xn--85x722f.com.cn' == psl.get_sld('xn--85x722f.com.cn')
+        assert 'xn--85x722f.xn--55qx5d.cn' == psl.get_sld('xn--85x722f.xn--55qx5d.cn')
+        assert 'xn--85x722f.xn--55qx5d.cn' == psl.get_sld('www.xn--85x722f.xn--55qx5d.cn')
+        assert 'shishi.xn--55qx5d.cn' == psl.get_sld('shishi.xn--55qx5d.cn')
 
     def test_utf8_encoded(self):
-        psl = publicsuffix.PublicSuffixList(idna=False)  # uses the list provided utf-8 defaults
-        assert u'食狮.com.cn' == psl.get_public_suffix(u'食狮.com.cn')
-        assert u'食狮.公司.cn' == psl.get_public_suffix(u'食狮.公司.cn')
-        assert u'食狮.公司.cn' == psl.get_public_suffix(u'www.食狮.公司.cn')
-        assert u'shishi.公司.cn' == psl.get_public_suffix(u'shishi.公司.cn')
+        # uses the list provided utf-8 defaults
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert u'食狮.com.cn' == psl.get_sld(u'食狮.com.cn')
+        assert u'食狮.公司.cn' == psl.get_sld(u'食狮.公司.cn')
+        assert u'食狮.公司.cn' == psl.get_sld(u'www.食狮.公司.cn')
+        assert u'shishi.公司.cn' == psl.get_sld(u'shishi.公司.cn')
 
     def test_exceptions(self):
         psl = publicsuffix.PublicSuffixList()
-        assert 'www.ck' == psl.get_public_suffix('www.www.ck')  # www is the exception
-        assert 'this.that.ck' == psl.get_public_suffix('this.that.ck')
+        # www is the exception
+        assert 'www.ck' == psl.get_sld('www.www.ck')
+        assert 'this.that.ck' == psl.get_sld('this.that.ck')
 
     def test_no_wildcard(self):
         psl = publicsuffix.PublicSuffixList()
         # test completion when no wildcards should be processed
-        assert 'com.pg' == psl.get_public_suffix('telinet.com.pg', wildcard=False)
-        assert 'ap-southeast-1.elb.amazonaws.com' == psl.get_public_suffix('blah.ap-southeast-1.elb.amazonaws.com',
-                                                                           wildcard=False)
+        assert 'com.pg' == psl.get_sld('telinet.com.pg', wildcard=False)
+        expected = 'ap-southeast-1.elb.amazonaws.com'
+        result = psl.get_sld('blah.ap-southeast-1.elb.amazonaws.com', wildcard=False)
+        assert expected == result
 
     def test_convenience_functions(self):
         psl = publicsuffix.PublicSuffixList()
         # these functions should be identical
-        assert psl.get_sld('www.google.com') == psl.get_public_suffix('www.google.com')
-        assert psl.get_sld('www.test.ak.us') == psl.get_public_suffix('www.test.ak.us')
+        assert psl.get_sld('www.google.com') == psl.get_sld('www.google.com')
+        assert psl.get_sld('www.test.ak.us') == psl.get_sld('www.test.ak.us')
 
     def test_tld_function(self):
         psl = publicsuffix.PublicSuffixList()
@@ -226,7 +236,7 @@ class TestPublicSuffixIdna(unittest.TestCase):
         assert psl.get_tld('telinet.co.uk', wildcard=False) == 'co.uk'
         assert psl.get_tld('blah.local', strict=True) is None
 
-    def test_tlds_are_loaded_correctly(self):
+    def test_PublicSuffixList_tlds_is_loaded_correctly(self):
         psl = publicsuffix.PublicSuffixList()
         assert psl.tlds
 

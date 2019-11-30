@@ -231,14 +231,7 @@ class PublicSuffixList(object):
             for name in ('*', parts[-depth]):
                 child = children.get(name, None)
                 if child is not None:
-                    if wildcard:
-                        if child in (0, 1):
-                            negate = child
-                        else:
-                            negate = child[0]
-                        matches[-depth] = negate
-                        self._lookup_node(matches, depth + 1, child, parts, wildcard)
-                    elif name != '*':
+                    if wildcard or name != '*':
                         if child in (0, 1):
                             negate = child
                         else:

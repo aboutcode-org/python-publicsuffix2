@@ -61,7 +61,7 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'com' == psl.get_sld('a.example.com')
 
         # enable strict mode
-        # assert None == psl.get_sld('com', strict=True)  # FIXME
+        assert None == psl.get_sld('com', strict=True)
 
     def test_get_sld_from_list(self):
         psl = publicsuffix.PublicSuffixList(['com'])

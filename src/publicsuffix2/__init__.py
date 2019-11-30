@@ -254,7 +254,9 @@ class PublicSuffixList(object):
             return None
         parts = domain.lower().strip('.').split('.')
         hits = [None] * len(parts)
-        if strict and parts[-1] not in self.root[1].keys():
+        if strict and (
+            self.root in (0, 1) or parts[-1] not in self.root[1].keys()
+        ):
             return None
 
         self._lookup_node(hits, 1, self.root, parts, wildcard)

@@ -235,17 +235,17 @@ class TestPublicSuffixIdna(unittest.TestCase):
         # checks that the eTLD or TLD is produced
         assert psl.get_tld('com') == 'com'
         self.assertEqual(psl.get_tld('city.kobe.jp'), 'kobe.jp')
-        self.assertEqual(psl.get_tld('kobe.jp'), 'jp')  # FIXME: 'kobe.jp'
-        self.assertEqual(psl.get_tld('amazonaws.com'), 'com')  # FIXME: 'amazonaws.com'
+        self.assertEqual(psl.get_tld('kobe.jp'), 'kobe.jp')
+        self.assertEqual(psl.get_tld('amazonaws.com'), 'amazonaws.com')
         assert psl.get_tld('telinet.com.pg', wildcard=True) == 'com.pg'
         assert psl.get_tld('telinet.com.pg', wildcard=False) == 'pg'
-        self.assertEqual(psl.get_tld('com.pg', wildcard=True), 'pg')  # FIXME: 'com.pg'
+        self.assertEqual(psl.get_tld('com.pg', wildcard=True), 'com.pg')
         self.assertEqual(psl.get_tld('com.pg', wildcard=False), 'pg')
         assert psl.get_tld('telinet.co.uk', wildcard=False) == 'co.uk'
-        self.assertEqual(psl.get_tld('co.uk', wildcard=True), 'uk')  # FIXME: 'co.uk'
-        self.assertEqual(psl.get_tld('co.uk', wildcard=False), 'uk')  # FIXME: 'co.uk'
+        self.assertEqual(psl.get_tld('co.uk', wildcard=True), 'co.uk')
+        self.assertEqual(psl.get_tld('co.uk', wildcard=False), 'co.uk')
         assert psl.get_tld('blah.local', strict=True) is None
-        self.assertEqual(psl.get_tld('blah.local', wildcard=False), 'local')  # FIXME: None
+        self.assertEqual(psl.get_tld('blah.local', wildcard=False), None)
         self.assertEqual(psl.get_tld('blah.local'), 'local')
 
         # the tld for empty string

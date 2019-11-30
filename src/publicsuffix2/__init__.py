@@ -208,7 +208,7 @@ class PublicSuffixList(object):
 
         The lookup is tracked via a list, initially set to all None, that marks
         the negation flags of nodes it matches. each match will be marked for
-        later composition of the SLD.
+        later composition of the eTLD.
 
         :param matches: list, parts long, None (initial), 0, or 1
         :param depth: int, how far in the Trie this run is
@@ -217,21 +217,33 @@ class PublicSuffixList(object):
         :param wildcard: boolean, whether to process wildcard nodes
         :return: None, recursive call
         """
+        if wildcard and depth == 1:
+            # if no rules match, the prevailing rule is "*"
+            # See: Algorithm 2 at https://publicsuffix.org/list/
+            matches[-depth] = 0
+
         if parent in (0, 1):
-            negate = parent
-            children = None
-        else:
-            negate, children = parent
+            return
 
-        matches[-depth] = negate
+        children = parent[1]
 
-        if depth < len(parts) and children:
+        if depth <= len(parts) and children:
             for name in ('*', parts[-depth]):
                 child = children.get(name, None)
                 if child is not None:
                     if wildcard:
+                        if child in (0, 1):
+                            negate = child
+                        else:
+                            negate = child[0]
+                        matches[-depth] = negate
                         self._lookup_node(matches, depth + 1, child, parts, wildcard)
                     elif name != '*':
+                        if child in (0, 1):
+                            negate = child
+                        else:
+                            negate = child[0]
+                        matches[-depth] = negate
                         self._lookup_node(matches, depth + 1, child, parts, wildcard)
 
     def get_sld(self, domain, wildcard=True, strict=False):
@@ -252,18 +264,19 @@ class PublicSuffixList(object):
         """
         if not domain:
             return None
-        parts = domain.lower().strip('.').split('.')
-        hits = [None] * len(parts)
-        if strict and (
-            self.root in (0, 1) or parts[-1] not in self.root[1].keys()
-        ):
+
+        # for compatibility, set strict True not to allow invalid TLDs
+        tld = self.get_tld(domain, wildcard, True)
+        if strict and tld is None:
             return None
 
-        self._lookup_node(hits, 1, self.root, parts, wildcard)
+        parts = domain.lower().strip('.').split('.')
+        num_of_tld_parts = 0 if tld is None else tld.count('.') + 1
 
-        for i, what in enumerate(hits):
-            if what is not None and what == 0:
-                return '.'.join(parts[i:])
+        if len(parts) <= num_of_tld_parts:
+            return tld
+        else:
+            return '.'.join(parts[-(num_of_tld_parts + 1):])
 
     def get_public_suffix(self, domain, wildcard=True, strict=False):
         """
@@ -288,13 +301,20 @@ class PublicSuffixList(object):
         :param strict: boolean, check that top TLD is valid in Trie
         :return: string, the TLD for the domain
         """
-        sld = self.get_sld(domain, wildcard, strict)
-        if sld is None:
+        if not domain:
             return None
-        elif sld.count('.') > 0:
-            return '.'.join(sld.split('.')[1:])
-        else:
-            return sld
+        parts = domain.lower().strip('.').split('.')
+        hits = [None] * len(parts)
+        if strict and (
+            self.root in (0, 1) or parts[-1] not in self.root[1].keys()
+        ):
+            return None
+
+        self._lookup_node(hits, 1, self.root, parts, wildcard)
+
+        for i, what in enumerate(hits):
+            if what is not None and what == 0:
+                return '.'.join(parts[i:])
 
 
 _PSL = None

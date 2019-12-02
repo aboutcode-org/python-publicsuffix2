@@ -248,9 +248,12 @@ class TestPublicSuffixIdna(unittest.TestCase):
         self.assertEqual(psl.get_tld('blah.local', wildcard=False), None)
         self.assertEqual(psl.get_tld('blah.local'), 'local')
 
+        # FQDNs
+        self.assertEqual(psl.get_tld('www.foo.com.'), 'com')
+        self.assertEqual(psl.get_tld('.'), '')  # the root domain
+
         # the tld for empty string
         self.assertEqual(psl.get_tld(''), None)
-        self.assertEqual(psl.get_tld('.'), '')  # XXX: Is it correct?
 
     def test_PublicSuffixList_tlds_is_loaded_correctly(self):
         psl = publicsuffix.PublicSuffixList()
@@ -279,9 +282,12 @@ class TestPublicSuffixIssue5(unittest.TestCase):
         self.assertEqual(psl.get_sld(''), None)
         self.assertEqual(psl.get_sld('', strict=True), None)
         self.assertEqual(psl.get_sld('', wildcard=False), None)
-        self.assertEqual(psl.get_sld('.'), '')  # XXX: Is it correct?
-        self.assertEqual(psl.get_sld('.', strict=True), None)
-        self.assertEqual(psl.get_sld('.', wildcard=False), '')  # XXX: Is it correct?
+
+        # FQDNs
+        self.assertEqual(psl.get_sld('www.foo.com.'), 'foo.com')
+        self.assertEqual(psl.get_sld('.'), '')  # the root domain
+        self.assertEqual(psl.get_sld('.', strict=True), None)  # the root domain
+        self.assertEqual(psl.get_sld('.', wildcard=False), '')  # the root domain
 
 
 if __name__ == '__main__':

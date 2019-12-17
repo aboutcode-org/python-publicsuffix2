@@ -60,6 +60,9 @@ class TestPublicSuffix(unittest.TestCase):
         assert 'com' == psl.get_sld('.com')
         assert 'com' == psl.get_sld('a.example.com')
 
+        # enable strict mode
+        assert None == psl.get_sld('com', strict=True)
+
     def test_get_sld_from_list(self):
         psl = publicsuffix.PublicSuffixList(['com'])
         assert 'example.com' == psl.get_sld('a.example.com')
@@ -231,14 +234,61 @@ class TestPublicSuffixIdna(unittest.TestCase):
         psl = publicsuffix.PublicSuffixList()
         # checks that the eTLD or TLD is produced
         assert psl.get_tld('com') == 'com'
+        self.assertEqual(psl.get_tld('city.kobe.jp'), 'kobe.jp')
+        self.assertEqual(psl.get_tld('kobe.jp'), 'kobe.jp')
+        self.assertEqual(psl.get_tld('amazonaws.com'), 'amazonaws.com')
         assert psl.get_tld('telinet.com.pg', wildcard=True) == 'com.pg'
         assert psl.get_tld('telinet.com.pg', wildcard=False) == 'pg'
+        self.assertEqual(psl.get_tld('com.pg', wildcard=True), 'com.pg')
+        self.assertEqual(psl.get_tld('com.pg', wildcard=False), 'pg')
         assert psl.get_tld('telinet.co.uk', wildcard=False) == 'co.uk'
+        self.assertEqual(psl.get_tld('co.uk', wildcard=True), 'co.uk')
+        self.assertEqual(psl.get_tld('co.uk', wildcard=False), 'co.uk')
         assert psl.get_tld('blah.local', strict=True) is None
+        self.assertEqual(psl.get_tld('blah.local', wildcard=False), None)
+        self.assertEqual(psl.get_tld('blah.local'), 'local')
+
+        # FQDNs
+        self.assertEqual(psl.get_tld('www.foo.com.'), 'com')
+        self.assertEqual(psl.get_tld('.'), '')  # the root domain
+
+        # the tld for empty string
+        self.assertEqual(psl.get_tld(''), None)
 
     def test_PublicSuffixList_tlds_is_loaded_correctly(self):
         psl = publicsuffix.PublicSuffixList()
         assert psl.tlds
+
+
+class TestPublicSuffixIssue5(unittest.TestCase):
+
+    def test_backward_compatibility(self):
+        psl = publicsuffix.PublicSuffixList()
+        self.assertEqual(psl.get_sld('com'), 'com')
+        self.assertEqual(psl.get_sld('foo.com'), 'foo.com')
+        self.assertEqual(psl.get_sld('foo.co.jp'), 'foo.co.jp')
+        self.assertEqual(psl.get_sld('co.jp'), 'co.jp')
+        self.assertEqual(psl.get_sld('jp'), 'jp')
+
+        # strict and wildcard flags
+        self.assertEqual(psl.get_sld('local'), 'local')
+        self.assertEqual(psl.get_sld('foo.local'), 'local')
+        self.assertEqual(psl.get_sld('local', strict=True), None)
+        self.assertEqual(psl.get_sld('foo.local', strict=True), None)
+        self.assertEqual(psl.get_sld('local', wildcard=False), 'local')
+        self.assertEqual(psl.get_sld('foo.local', strict=False), 'local')
+
+        # the sld for empty string
+        self.assertEqual(psl.get_sld(''), None)
+        self.assertEqual(psl.get_sld('', strict=True), None)
+        self.assertEqual(psl.get_sld('', wildcard=False), None)
+
+        # FQDNs
+        self.assertEqual(psl.get_sld('www.foo.com.'), 'foo.com')
+        self.assertEqual(psl.get_sld('.'), '')  # the root domain
+        self.assertEqual(psl.get_sld('.', strict=True), None)  # the root domain
+        self.assertEqual(psl.get_sld('.', wildcard=False), '')  # the root domain
+
 
 if __name__ == '__main__':
     unittest.main('tests')

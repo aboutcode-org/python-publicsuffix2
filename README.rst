@@ -69,6 +69,8 @@ or second-level-doamin; get_public_suffix() and get_sld()::
     'example.co.uk'
     >>> get_public_suffix('www.super.example.co.uk')
     'example.co.uk'
+    >>> get_sld("co.uk")  # returns eTLD as is
+    'co.uk'
 
 This function loads and caches the public suffix list. To obtain the latest version of the
 PSL, use the fetch() function to first download the latest version. Alternatively, you can pass

@@ -245,6 +245,9 @@ class PublicSuffixList(object):
         for example, 'www.this.local' will return 'this.local'. If you want to
         ensure the TLD is in the public suffix list, use strict=True.
 
+        If domain is already an eTLD, it returns domain as-is instead of None
+        value.
+
         :param domain: string, needs to match the encoding of the PSL (idna or UTF8)
         :param wildcard: boolean, follow wildcard patterns
         :param strict: boolean, check the TLD is valid, return None if not

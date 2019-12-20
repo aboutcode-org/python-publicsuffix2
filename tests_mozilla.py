@@ -27,19 +27,11 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import unicode_literals
 
-import sys
 import unittest
 
 import publicsuffix2 as publicsuffix
-
-if sys.version < '3':
-    import codecs
-    def u(x):
-        return codecs.unicode_escape_decode(x)[0]
-else:
-    def u(x):
-        return x
 
 
 class TestPublicSuffixMozilla(unittest.TestCase):

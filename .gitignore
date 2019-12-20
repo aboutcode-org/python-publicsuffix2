@@ -11,3 +11,4 @@ build
 /.cache/
 /.pytest_cache/
 /.eggs/
+/.python-version

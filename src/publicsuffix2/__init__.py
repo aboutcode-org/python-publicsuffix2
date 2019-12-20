@@ -96,7 +96,7 @@ class PublicSuffixList(object):
 
     def _find_node(self, parent, parts):
         """
-        Processing each line of the publc suffix list recursively to build the
+        Processing each line of the public suffix list recursively to build the
         Trie.  Each line is processed into a dictionary, which may contain sub-
         Trie, and nodes terminate in node of either 0 or 1 (negate).
 

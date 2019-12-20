@@ -8,3 +8,4 @@ Credits
 - Philippe Ombredanne @pombredanne
 - Renée Burton @KnitCode
 - Kevin Olbrich @kevin-olbrich
+- Masahiro Honma @hiratara

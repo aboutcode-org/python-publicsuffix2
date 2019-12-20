@@ -45,6 +45,7 @@ class UpdatePslCommand(Command):
         from contextlib import closing
         from datetime import datetime
         import os
+        import sys
 
         import requests
 
@@ -70,24 +71,24 @@ license_text_file: mpl-2.0.LICENSE
         version = datetime.isoformat(datetime.utcnow()).partition('.')[0]
         glocals = locals()
         print('Fetching latest list from: %(PSL_URL)s on: %(version)s' % glocals)
-
         fetched= requests.get(PSL_URL).content
         with open(PSL_FILE, 'wb') as pslout:
             pslout.write(fetched)
-        with open(ABOUT_PSL_FILE, 'wb') as about:
+        mode = 'wb' if sys.version_info[0] == 2 else 'w'
+        with open(ABOUT_PSL_FILE, mode) as about:
             about.write(ABOUT_TEMPLATE % glocals)
         print('Saved updated %(PSL_FILE)s and %(ABOUT_PSL_FILE)s' % glocals)
 
 
 setup(
     name='publicsuffix2',
-    version='2.20190812',
+    version='2.20191219',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix '
         'List. Forked from and using the same API as the publicsuffix package.',
     long_description_content_type = 'text/x-rst',
     long_description='%s\n%s' % (read('README.rst'), read('CHANGELOG.rst')),
-    author='nexB Inc., Tomaz Solc and David Wilson',
+    author='nexB Inc., Tomaz Solc, David Wilson and others.',
     author_email='info@nexb.com',
     url='https://github.com/nexb/python-publicsuffix2',
     packages=find_packages('src'),

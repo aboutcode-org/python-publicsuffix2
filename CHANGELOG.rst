@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+2019-12-19   publicsuffix2 2.20191219
+
+    * Add new strict mode to get_tld() by @hiratara .
+    * Update TLD list
+    * Add tests from Mozilla test suite
+
+
 2019-08-12   publicsuffix2 2.20190812
 
     * Fix regression in available tlds.

@@ -212,7 +212,7 @@ History
 -------
 This code is forked from Tomaž Šolc's fork of David Wilson's code.
 
-David Wilson's code originally at:
+Tomaž Šolc's code originally at:
 
 https://www.tablix.org/~avian/git/publicsuffix.git
 

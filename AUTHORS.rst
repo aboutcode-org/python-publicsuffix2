@@ -7,5 +7,6 @@ Credits
 - Tomaž Šolc @avian2
 - Philippe Ombredanne @pombredanne
 - Renée Burton @KnitCode
+- @vpiserchia
 - Kevin Olbrich @kevin-olbrich
 - Masahiro Honma @hiratara

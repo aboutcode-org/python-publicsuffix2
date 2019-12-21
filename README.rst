@@ -231,7 +231,7 @@ License
 The code is MIT-licensed.
 The vendored public suffix list data from Mozilla is under the MPL-2.0.
 
-Copyright (c) 2015 nexB Inc.
+Copyright (c) 2015 nexB Inc. and others.
 
 Copyright (c) 2014 Tomaž Šolc <tomaz.solc@tablix.org>
 

@@ -212,7 +212,7 @@ History
 -------
 This code is forked from Tomaž Šolc's fork of David Wilson's code.
 
-David Wilson's code originally at:
+Tomaž Šolc's code originally at:
 
 https://www.tablix.org/~avian/git/publicsuffix.git
 
@@ -220,7 +220,7 @@ Copyright (c) 2014 Tomaž Šolc <tomaz.solc@tablix.org>
 
 David Wilson's code was originally at:
 
-from http://code.google.com/p/python-public-suffix-list/
+http://code.google.com/p/python-public-suffix-list/
 
 Copyright (c) 2009 David Wilson
 

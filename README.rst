@@ -220,7 +220,7 @@ Copyright (c) 2014 Tomaž Šolc <tomaz.solc@tablix.org>
 
 David Wilson's code was originally at:
 
-from http://code.google.com/p/python-public-suffix-list/
+http://code.google.com/p/python-public-suffix-list/
 
 Copyright (c) 2009 David Wilson
 

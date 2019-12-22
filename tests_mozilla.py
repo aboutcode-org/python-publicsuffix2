@@ -235,31 +235,40 @@ class TestPublicSuffixMozilla(unittest.TestCase):
         assert 'k12.ak.us' == publicsuffix.get_tld('www.test.k12.ak.us')
 
     def test_get_tld_IDN_labels1(self):
-        assert 'com.cn' == publicsuffix.get_tld('食狮.com.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert 'com.cn' == psl.get_tld('食狮.com.cn')
 
     def test_get_tld_IDN_labels2(self):
-        assert 'cn' == publicsuffix.get_tld('食狮.公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('食狮.公司.cn')
 
     def test_get_tld_IDN_labels3(self):
-        assert 'cn' == publicsuffix.get_tld('www.食狮.公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('www.食狮.公司.cn')
 
     def test_get_tld_IDN_labels4(self):
-        assert 'cn' == publicsuffix.get_tld('shishi.公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('shishi.公司.cn')
 
     def test_get_tld_IDN_labels5(self):
-        assert 'cn' == publicsuffix.get_tld('公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('公司.cn')
 
     def test_get_tld_IDN_labels6(self):
-        assert '中国' == publicsuffix.get_tld('食狮.中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('食狮.中国')
 
     def test_get_tld_IDN_labels7(self):
-        assert '中国' == publicsuffix.get_tld('www.食狮.中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('www.食狮.中国')
 
     def test_get_tld_IDN_labels8(self):
-        assert '中国' == publicsuffix.get_tld('shishi.中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('shishi.中国')
 
     def test_get_tld_IDN_labels9(self):
-        assert '中国' == publicsuffix.get_tld('中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('中国')
 
     def test_get_tld_Same_as_above_but_punycoded1(self):
         assert 'com.cn' == publicsuffix.get_tld('xn--85x722f.com.cn')
@@ -490,31 +499,40 @@ class TestPublicSuffixMozillaStrict(unittest.TestCase):
         assert 'k12.ak.us' == publicsuffix.get_tld('www.test.k12.ak.us', strict=True)
 
     def test_get_tld_IDN_labels1(self):
-        assert 'com.cn' == publicsuffix.get_tld('食狮.com.cn', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert 'com.cn' == psl.get_tld('食狮.com.cn', strict=True)
 
     def test_get_tld_IDN_labels2(self):
-        assert 'cn' == publicsuffix.get_tld('食狮.公司.cn', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('食狮.公司.cn', strict=True)
 
     def test_get_tld_IDN_labels3(self):
-        assert 'cn' == publicsuffix.get_tld('www.食狮.公司.cn', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('www.食狮.公司.cn', strict=True)
 
     def test_get_tld_IDN_labels4(self):
-        assert 'cn' == publicsuffix.get_tld('shishi.公司.cn', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('shishi.公司.cn', strict=True)
 
     def test_get_tld_IDN_labels5(self):
-        assert 'cn' == publicsuffix.get_tld('公司.cn', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_tld('公司.cn', strict=True)
 
     def test_get_tld_IDN_labels6(self):
-        assert None == publicsuffix.get_tld('食狮.中国', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('食狮.中国', strict=True)
 
     def test_get_tld_IDN_labels7(self):
-        assert None == publicsuffix.get_tld('www.食狮.中国', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('www.食狮.中国', strict=True)
 
     def test_get_tld_IDN_labels8(self):
-        assert None == publicsuffix.get_tld('shishi.中国', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('shishi.中国', strict=True)
 
     def test_get_tld_IDN_labels9(self):
-        assert None == publicsuffix.get_tld('中国', strict=True)
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_tld('中国', strict=True)
 
     def test_get_tld_Same_as_above_but_punycoded1(self):
         assert 'com.cn' == publicsuffix.get_tld('xn--85x722f.com.cn', strict=True)
@@ -745,31 +763,40 @@ class TestPublicSuffixMozillaSld(unittest.TestCase):
         assert 'test.k12.ak.us' == publicsuffix.get_sld('www.test.k12.ak.us')
 
     def test_get_sld_IDN_labels1(self):
-        assert '食狮.com.cn' == publicsuffix.get_sld('食狮.com.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '食狮.com.cn' == psl.get_sld('食狮.com.cn')
 
     def test_get_sld_IDN_labels2(self):
-        assert '公司.cn' == publicsuffix.get_sld('食狮.公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '食狮.公司.cn' == psl.get_sld('食狮.公司.cn')
 
     def test_get_sld_IDN_labels3(self):
-        assert '公司.cn' == publicsuffix.get_sld('www.食狮.公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '食狮.公司.cn' == psl.get_sld('www.食狮.公司.cn')
 
     def test_get_sld_IDN_labels4(self):
-        assert '公司.cn' == publicsuffix.get_sld('shishi.公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert 'shishi.公司.cn' == psl.get_sld('shishi.公司.cn')
 
     def test_get_sld_IDN_labels5(self):
-        assert '公司.cn' == publicsuffix.get_sld('公司.cn')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '公司.cn' == psl.get_sld('公司.cn')
 
     def test_get_sld_IDN_labels6(self):
-        assert '中国' == publicsuffix.get_sld('食狮.中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '食狮.中国' == psl.get_sld('食狮.中国')
 
     def test_get_sld_IDN_labels7(self):
-        assert '中国' == publicsuffix.get_sld('www.食狮.中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '食狮.中国' == psl.get_sld('www.食狮.中国')
 
     def test_get_sld_IDN_labels8(self):
-        assert '中国' == publicsuffix.get_sld('shishi.中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert 'shishi.中国' == psl.get_sld('shishi.中国')
 
     def test_get_sld_IDN_labels9(self):
-        assert '中国' == publicsuffix.get_sld('中国')
+        psl = publicsuffix.PublicSuffixList(idna=False)
+        assert '中国' == psl.get_sld('中国')
 
     def test_get_sld_Same_as_above_but_punycoded1(self):
         assert 'xn--85x722f.com.cn' == publicsuffix.get_sld('xn--85x722f.com.cn')

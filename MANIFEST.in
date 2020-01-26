@@ -3,5 +3,7 @@ graft src
 include CHANGELOG.rst
 include README.rst
 include publicsuffix2.LICENSE
+include tests.py
+include tests_mozilla.py
 
 global-exclude *.py[co] __pycache__ *.so *.pyd

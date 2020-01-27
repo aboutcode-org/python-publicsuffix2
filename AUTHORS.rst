@@ -10,3 +10,4 @@ Credits
 - @vpiserchia
 - Kevin Olbrich @kevin-olbrich
 - Masahiro Honma @hiratara
+- Scott Kitterman @kitterma

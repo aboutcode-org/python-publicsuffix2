@@ -82,7 +82,7 @@ license_text_file: mpl-2.0.LICENSE
 
 setup(
     name='publicsuffix2',
-    version='2.20191221',
+    version='2.20200127',
     license='MIT and MPL-2.0',
     description='Get a public suffix for a domain name using the Public Suffix '
         'List. Forked from and using the same API as the publicsuffix package.',
@@ -113,5 +113,6 @@ setup(
     keywords=[
         'domain', 'public suffix', 'suffix', 'dns', 'tld', 'sld', 'psl', 'idna',
     ],
+    # run this to update the Public Suffix list data "python setup.py update_psl"
     cmdclass={'update_psl': UpdatePslCommand},
 )

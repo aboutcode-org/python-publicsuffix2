@@ -1,9 +1,16 @@
 Changelog
 ---------
 
+2020-01-27  publicsuffix2 2.20200127
+
+    * Update TLD list
+    * Include tests in source distribution to help with Debian packaging by @kitterma
+    * Update unicode/idna tests by @hiratara 
+
+
 2019-12-19   publicsuffix2 2.20191219
 
-    * Add new strict mode to get_tld() by @hiratara .
+    * Add new strict mode to get_tld() by @hiratara 
     * Update TLD list
     * Add tests from Mozilla test suite
 

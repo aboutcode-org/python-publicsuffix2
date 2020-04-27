@@ -583,40 +583,49 @@ class TestPublicSuffixMozillaSld(unittest.TestCase):
         assert 'example.com' == publicsuffix.get_sld('WwW.example.COM')
 
     def test_get_sld_Leading_dot1(self):
-        assert 'com' == publicsuffix.get_sld('.com')
+        # '.com' -> <empty>.<com> -> None, empty labels are not allowed
+        assert None == publicsuffix.get_sld('.com')
 
     def test_get_sld_Leading_dot2(self):
-        assert 'example' == publicsuffix.get_sld('.example')
+        # '.example' -> <empty>.<example> -> None, empty labels are not allowed
+        assert None == publicsuffix.get_sld('.example')
 
     def test_get_sld_Leading_dot3(self):
         assert 'example.com' == publicsuffix.get_sld('.example.com')
 
     def test_get_sld_Leading_dot4(self):
-        assert 'example' == publicsuffix.get_sld('.example.example')
+        # non-strict: TLD:example, SLD:example.example
+        assert 'example.example' == publicsuffix.get_sld('.example.example')
 
     def test_get_sld_Unlisted_sld1(self):
         assert 'example' == publicsuffix.get_sld('example')
 
     def test_get_sld_Unlisted_sld2(self):
-        assert 'example' == publicsuffix.get_sld('example.example')
+        # non-strict: TLD:example, SLD:example.example
+        assert 'example.example' == publicsuffix.get_sld('example.example')
 
     def test_get_sld_Unlisted_sld3(self):
-        assert 'example' == publicsuffix.get_sld('b.example.example')
+        # non-strict: TLD:example, SLD:example.example
+        assert 'example.example' == publicsuffix.get_sld('b.example.example')
 
     def test_get_sld_Unlisted_sld4(self):
-        assert 'example' == publicsuffix.get_sld('a.b.example.example')
+        # non-strict mode: TLD=example -> SLD=example.example
+        assert 'example.example' == publicsuffix.get_sld('a.b.example.example')
 
     def test_get_sld_Listed_but_non_Internet_sld1(self):
         assert 'local' == publicsuffix.get_sld('local')
 
     def test_get_sld_Listed_but_non_Internet_sld2(self):
-        assert 'local' == publicsuffix.get_sld('example.local')
+        # non-strict: TLD:local, SLD:example.local
+        assert 'example.local' == publicsuffix.get_sld('example.local')
 
     def test_get_sld_Listed_but_non_Internet_sld3(self):
-        assert 'local' == publicsuffix.get_sld('b.example.local')
+        # non-strict: TLD:local, SLD:example.local
+        assert 'example.local' == publicsuffix.get_sld('b.example.local')
 
     def test_get_sld_Listed_but_non_Internet_sld4(self):
-        assert 'local' == publicsuffix.get_sld('a.b.example.local')
+        # non-strict: TLD:local, SLD:example.local
+        assert 'example.local' == publicsuffix.get_sld('a.b.example.local')
 
     def test_get_sld_tld_with_only_1_rule1(self):
         assert 'biz' == publicsuffix.get_sld('biz')

@@ -49,8 +49,11 @@ class TestPublicSuffix(unittest.TestCase):
         psl = publicsuffix.PublicSuffixList([])
         assert 'com' == psl.get_sld('com')
         assert 'com' == psl.get_sld('COM')
-        assert 'com' == psl.get_sld('.com')
-        assert 'com' == psl.get_sld('a.example.com')
+        # '.com' -> <empty>.<com> -> None, empty labels are not allowed
+        assert None == psl.get_sld('.com')
+        # 'a.example.com', strict=False -> <a>.<example:sll>.<com:tld> -> 'example.com'
+        assert 'example.com' == psl.get_sld('a.example.com')
+
 
     def test_get_sld_from_empty_list_in_strict_mode(self):
         psl = publicsuffix.PublicSuffixList([])
@@ -78,7 +81,8 @@ class TestPublicSuffix(unittest.TestCase):
 
     def test_get_sld_from_list_with_fqdn(self):
         psl = publicsuffix.PublicSuffixList(['com'])
-        assert 'example.com' == psl.get_sld('example.com.')
+        # 'example.com.' -> <example>.<com>.<empty> -> None, empty labels are not allowed
+        assert None == psl.get_sld('example.com.')
 
     def test_get_sld_from_list_with_unicode(self):
         psl = publicsuffix.PublicSuffixList([u'\u0440\u0444'], idna=False)
@@ -103,24 +107,29 @@ class TestPublicSuffixUsingTheCurrentVendoredPSL(unittest.TestCase):
 
     def test_get_sld_from_builtin_full_publicsuffix_org_list_with_leading_dot(self):
         psl = publicsuffix.PublicSuffixList(None)
-        assert 'com' == psl.get_sld('.com')
-        assert 'example' == psl.get_sld('.example')
+        # '.com' -> <empty>.<com> -> None, empty labels are not allowed
+        assert None == psl.get_sld('.com')
+        # '.example' -> <empty>.<example> -> None, empty labels are not allowed
+        assert None == psl.get_sld('.example')
         assert 'example.com' == psl.get_sld('.example.com')
-        assert 'example' == psl.get_sld('.example.example')
+        # note: non-strict mode: TLD 'example' -> SLD example.example
+        assert 'example.example' == psl.get_sld('.example.example')
 
     def test_get_sld_from_builtin_full_publicsuffix_org_list_with_unlisted_tld(self):
         psl = publicsuffix.PublicSuffixList(None)
         assert 'example' == psl.get_sld('example')
-        assert 'example' == psl.get_sld('example.example')
-        assert 'example' == psl.get_sld('b.example.example')
-        assert 'example' == psl.get_sld('a.b.example.example')
+        # non-strict mode, tld=example, sld=example.example
+        assert 'example.example' == psl.get_sld('example.example')
+        assert 'example.example' == psl.get_sld('b.example.example')
+        assert 'example.example' == psl.get_sld('a.b.example.example')
 
     def test_get_sld_from_builtin_full_publicsuffix_org_list_with_listed_ut_non_internet_tld(self):
         psl = publicsuffix.PublicSuffixList(None)
         assert 'local' == psl.get_sld('local')
-        assert 'local' == psl.get_sld('example.local')
-        assert 'local' == psl.get_sld('b.example.local')
-        assert 'local' == psl.get_sld('a.b.example.local')
+        # note: non-strict mode, unknown tld: local -> sld: example.local
+        assert 'example.local' == psl.get_sld('example.local')
+        assert 'example.local' == psl.get_sld('b.example.local')
+        assert 'example.local' == psl.get_sld('a.b.example.local')
 
     def test_get_sld_from_builtin_full_publicsuffix_org_list_with_one_rule(self):
         psl = publicsuffix.PublicSuffixList(None)
@@ -237,16 +246,19 @@ class TestPublicSuffixGetSldIdna(unittest.TestCase):
         assert 'co.uk' == psl.get_tld('co.uk', wildcard=True)
         assert 'co.uk' == psl.get_tld('co.uk', wildcard=False)
         assert None == psl.get_tld('blah.local', strict=True)
-        assert None == psl.get_tld('blah.local', wildcard=False)
+        # non-strict mode: TLD = 'local'
+        assert 'local' == psl.get_tld('blah.local', wildcard=False)
         assert 'local' == psl.get_tld('blah.local')
 
     def test_get_tld_returns_correct_tld_or_etld_for_fqdn(self):
         psl = publicsuffix.PublicSuffixList()
-        assert 'com' == psl.get_tld('www.foo.com.')
+        # note: empty label or dot on the right side is not allowed
+        assert None == psl.get_tld('www.foo.com.')
 
     def test_get_tld_returns_correct_tld_or_etld_for_root_domain(self):
         psl = publicsuffix.PublicSuffixList()
-        assert '' == psl.get_tld('.')
+        # Note: empty label is not allowed
+        assert None == psl.get_tld('.')
 
     def test_get_tld_returns_correct_tld_or_etld_for_empty_string(self):
         psl = publicsuffix.PublicSuffixList()
@@ -270,11 +282,12 @@ class TestPublicSuffixGetSld(unittest.TestCase):
     def test_get_sld_backward_compatibility_strict_and_wildcard_flags(self):
         psl = publicsuffix.PublicSuffixList()
         assert 'local' == psl.get_sld('local')
-        assert 'local' == psl.get_sld('foo.local')
+        # non-strict mode: TLD=local -> sld = foo.local
+        assert 'foo.local' == psl.get_sld('foo.local')
         assert None == psl.get_sld('local', strict=True)
         assert None == psl.get_sld('foo.local', strict=True)
         assert 'local' == psl.get_sld('local', wildcard=False)
-        assert 'local' == psl.get_sld('foo.local', strict=False)
+        assert 'foo.local' == psl.get_sld('foo.local', strict=False)
 
     def test_get_sld_backward_compatibility_sld_for_empty_string(self):
         psl = publicsuffix.PublicSuffixList()
@@ -284,13 +297,15 @@ class TestPublicSuffixGetSld(unittest.TestCase):
 
     def test_get_sld_backward_compatibility_sld_for_fqdn(self):
         psl = publicsuffix.PublicSuffixList()
-        assert 'foo.com' == psl.get_sld('www.foo.com.')
+        # 'www.foo.com.' -> <www>.<foo>.<com>.<empty> -> None, empty labels are not allowed
+        assert None == psl.get_sld('www.foo.com.')
 
     def test_get_sld_backward_compatibility_sld_for_root_domain(self):
         psl = publicsuffix.PublicSuffixList()
-        assert '' == psl.get_sld('.')
+        # empty labels are not allowed
+        assert None == psl.get_sld('.')
         assert None == psl.get_sld('.', strict=True)
-        assert '' == psl.get_sld('.', wildcard=False)
+        assert None == psl.get_sld('.', wildcard=False)
 
 
 if __name__ == '__main__':

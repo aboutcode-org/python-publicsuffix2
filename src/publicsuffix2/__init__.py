@@ -258,21 +258,44 @@ class PublicSuffixList(object):
         :param strict: boolean, check the TLD is valid, return None if not
         :return: string, the SLD for the domain
         """
-        if not domain:
+        if not domain or len(domain) == 0:
             return None
+        domain = domain.lower()
+        return self.get_sld_unsafe(domain, wildcard, strict)
 
-        # for compatibility, set strict True not to allow invalid TLDs
-        tld = self.get_tld(domain, wildcard, True)
-        if strict and tld is None:
+    def get_sld_unsafe(self, domain, wildcard=True, strict=False):
+        """
+        Return the second-level-domain (SLD) or private suffix of a given domain
+        according to the public suffix list. The public suffix list includes
+        wildcards, so if wildcard is set to True, this will follow the wildcard
+        on traversal, otherwise it will stop at wildcard nodes.
+
+        The logic does not check by default whether the TLD is in the Trie, so
+        for example, 'www.this.local' will return 'this.local'. If you want to
+        ensure the TLD is in the public suffix list, use strict=True.
+
+        If domain is already an eTLD, it returns domain as-is instead of None
+        value.
+
+        In difference from get_sld method this method does not perform validation
+        of the input string, transformation it to the lowercase or trimming of
+        taildot.
+
+        :param domain: string, needs to match the encoding of the PSL (idna or UTF8)
+        :param wildcard: boolean, follow wildcard patterns
+        :param strict: boolean, check the TLD is valid, return None if not
+        :return: string, the SLD for the domain
+
+        """
+        tld = self.get_tld_unsafe(domain, wildcard, strict)
+        if tld is None:
             return None
-
-        parts = domain.lower().strip('.').split('.')
-        num_of_tld_parts = 0 if tld is None else tld.count('.') + 1
-
-        if len(parts) <= num_of_tld_parts:
+        rest = len(domain) - len(tld)
+        if rest == 0:
             return tld
         else:
-            return '.'.join(parts[-(num_of_tld_parts + 1):])
+            sld_idx = domain.rfind('.', 0, rest - 1) + 1  # will be rest + 1 iff empty label
+            return domain[sld_idx:] if rest - sld_idx > 1 else None
 
     def get_public_suffix(self, domain, wildcard=True, strict=False):
         """
@@ -297,31 +320,171 @@ class PublicSuffixList(object):
         :param strict: boolean, check that top TLD is valid in Trie
         :return: string, the TLD for the domain
         """
-        if not domain:
+        if domain is None:
             return None
-        parts = domain.lower().strip('.').split('.')
-        hits = [None] * len(parts)
-        if strict and (
-            self.root in (0, 1) or parts[-1] not in self.root[1].keys()
-        ):
-            return None
+        domain = domain.lower()
 
-        self._lookup_node(hits, 1, self.root, parts, wildcard)
+        return self.get_tld_unsafe(domain, wildcard, strict)
 
-        for i, what in enumerate(hits):
-            if what is not None and what == 0:
-                return '.'.join(parts[i:])
+    def get_tld_unsafe(self, domain, wildcard=True, strict=False):
+        """
+        Return the TLD, or public suffix, of a domain using the public suffix
+        list. uses wildcards if set, and checks for valid top TLD is
+        strict=True. The input domain should not have root '.' in the end.
+
+        This will return the domain itself when it is an ICANN TLD, e.g., 'com'
+        returns 'com', for follow on processing, while 'co.uk' return 'uk'. On
+        the other hand, more complicated domains will return their public
+        suffix, e.g., 'google.co.uk' will return 'co.uk'.
+
+        Empty labels are not allowed:
+
+        '.' -> <empty>.<empty> -> None
+
+        'com.' -> <com>.<empty> -> None
+
+        '.com' -> <empty>.<com> -> 'com'
+
+        In difference from get_sld method this method does not perform validation
+        of the input string, transformation it to the lowercase or trimming of
+        taildot.
+
+        :param domain: string the domain which TLD should be matched, without trailing '.'
+        :param wildcard: boolean, follow wildcards in Trie
+        :param strict: boolean, check that top TLD is valid in Trie
+        :return: string, the TLD for the domain
+        """
+        lbl_end = -1
+        lbl_start = len(domain)
+
+        tld_start = None
+        root = self.root
+        if root == 0:  # exhausted case - empty root. Use last label as TLD if not strict
+            lbl_start = None if strict else domain.rfind('.')
+
+        while type(root) is tuple:
+            if root[0] == 0:
+                tld_start = lbl_start
+            if lbl_start == -1:
+                break
+            lbl_end = lbl_start
+            lbl_start = domain.rfind('.', 0, lbl_end)
+            if len(domain[lbl_start + 1:lbl_end]) == 0:
+                break
+            p1 = root[1].get(domain[lbl_start + 1:lbl_end])
+            root = root[1].get("*") if p1 is None and wildcard else p1
+
+        if root == 0:
+            tld_start = lbl_start
+        # elif root == 1:  # we already have tld_start point to previous label
+        #     tld_start = lbl_end
+        elif root is None:  # only last label
+            if strict or tld_start is not None and tld_start != len(domain):
+                tld_start = lbl_end
+            else:
+                tld_start = lbl_start
+
+        tld = domain[tld_start + 1:] if tld_start is not None else None
+        return tld or None  # empty string -> None
+
+    def get_components(self, domain: str, wildcard=True, strict=False) -> (str, str, str):
+        """
+        Returns 3-tuple of components of the domain name: (prefix, SLL, TLD/eTLD)
+        where
+        * TLD/ETLD is top-level domain (extended top-level domain) per publicsuffix
+        * SLL - second level (registrable domain) label (the label on immediately
+                on the left of TLD/eTLD. None if only TLD is present.
+        * prefix - all the labels on the left side of TLD/eTLD. None if not present
+        This method does not validate the conformity of prefix to DNS requirements.
+        Note: this function as well as the appropriate method of PublicSuffixList
+        class is crafted for use in bulk-processors (such as pandas), therefore it
+        always returns 3-tuple:
+
+        <code>
+        psl = ps2.PublicSuffixList(idna=True)
+        df['prefix']['sll']['tld'] = zip(*df.domain.apply(ps2.get_component)
+        df = df.dropna(subset=['prefix','sll','tld'])
+        </code>
+
+        Examples of domain decomposition:
+            '.' -> (None, None, None)
+            'com.' -> (None, None, None)
+            'com' -> (None, None, 'com')
+            'google.com' -> (None, 'google', 'com')
+            'www.google.com' -> ('www', 'google', 'com')
+            'mail.l.google.com' -> ('mail.l', 'google', 'com')
+            'mail.l..com' -> ('mail.l', 'None', 'com') - invalid case - empty label
+            '.......com' -> ('.....', 'None', 'com') - invalid case - empty labels
+
+        Optionally read, and parse a public suffix list. `psl_file` is either a file
+        location string, or a file-like object, or an iterable of lines from a
+        public suffix data file.
+
+        If psl_file is None, the vendored file named "public_suffix_list.dat" is
+        loaded. It is stored side by side with this Python package.
+
+        The file format is described at http://publicsuffix.org/
+
+        :param domain: string - domain name without trailing '.'
+        :param wildcard: bool - whether wildcard rules are supported
+        :param strict: bool - disable unknown TLDs
+        :return: 3-tuple, (prefix, SLL, TLD/eTLD)
+        """
+        if not domain or len(domain) == 0:
+            return None, None, None
+        domain = domain.lower()
+        return self.get_components_unsafe(domain, wildcard, strict)
+
+    def get_components_unsafe(self, domain: str, wildcard=True, strict=False) -> (str, str, str):
+        """
+        This is unsafe method that does not checks if the domain is None. Also it does
+        not perform conversion of the domain into lowercase.
+        """
+
+        tld = self.get_tld_unsafe(domain, wildcard, strict)
+        sld = None
+        prefix = None
+
+        if tld is not None:
+            sld_end_idx = len(domain) - len(tld) - 1
+            if sld_end_idx > 0:
+                idx = domain.rfind('.', 0, sld_end_idx)
+                prefix = domain[:idx] if idx > 0 else None
+                sld = domain[idx + 1:sld_end_idx]
+                sld = None if len(sld) == 0 else sld
+        return prefix, sld, tld
 
 
 _PSL = None
 
 
-def get_sld(domain, psl_file=None, wildcard=True, idna=True, strict=False):
+def get_components(domain, psl_file=None, wildcard=True, idna=True, strict=False):
     """
-    Return the private suffix or SLD for a `domain` DNS name string. The
-    original publicsuffix2 library used the method get_public_suffix() for this
-    purpose, but get_private_suffix() is more proper. Convenience function that
-    builds and caches a PublicSuffixList object.
+    Returns 3-tuple of components of the domain name: (prefix, SLL, TLD/eTLD)
+    where
+    * TLD/ETLD is top-level domain (extended top-level domain) per publicsuffix
+    * SLL - second level (registrable domain) label (the label on immediately
+            on the left of TLD/eTLD. None if only TLD is present.
+    * prefix - all the labels on the left side of TLD/eTLD. None if not present
+    This method does not validate the conformity of prefix to DNS requirements.
+    Note: this function as well as the appropriate method of PublicSuffixList
+    class is crafted for use in bulk-processors (such as pandas), therefore it
+    always returns 3-tuple:
+
+    ```
+    df['prefix']['sll']['tld'] = zip(*df.domain.apply(get_component, idna=True)
+    df = df.dropna(subset=['prefix','sll','tld'])
+    ```
+
+    Examples of domain decomposition:
+        '.' -> (None, None, None)
+        'com.' -> (None, None, None)
+        'com' -> (None, None, 'com')
+        'google.com' -> (None, 'google', 'com')
+        'www.google.com' -> ('www', 'google', 'com')
+        'mail.l.google.com' -> ('mail.l', 'google', 'com')
+        'mail.l..com' -> ('mail.l', 'None', 'com') - invalid case - empty label
+        '.......com' -> ('.....', 'None', 'com') - invalid case - empty labels
 
     Optionally read, and parse a public suffix list. `psl_file` is either a file
     location string, or a file-like object, or an iterable of lines from a
@@ -331,6 +494,61 @@ def get_sld(domain, psl_file=None, wildcard=True, idna=True, strict=False):
     loaded. It is stored side by side with this Python package.
 
     The file format is described at http://publicsuffix.org/
+
+    Convenience function that builds and caches a PublicSuffixList object.
+    NOTE: this function caches the first set of parameters thar were used. If we
+    have two subsequent calls:
+    ```
+        split_domain(domain, idna=False)
+        split_domain(domain, idna=True)
+    ```
+    the second call will use the same non-idna publicsuffix as the first one.
+    Use with caution.
+
+    :param psl_file: the file name, if not available built in is used
+    :param idna: only idna part of the public suffix is used
+    :param domain: string - domain name without trailing '.'
+    :param wildcard: bool - whether wildcard rules are supported
+    :param strict: bool - disable unknown TLDs
+    :return: 3-tuple, (prefix, SLL, TLD/eTLD)
+    """
+    global _PSL
+    _PSL = _PSL or PublicSuffixList(psl_file, idna=idna)
+    return _PSL.get_components(domain, wildcard=wildcard, strict=strict)
+
+
+def get_sld(domain, psl_file=None, wildcard=True, idna=True, strict=False):
+    """
+    Return the private suffix or SLD for a `domain` DNS name string. The
+    original publicsuffix2 library used the method get_public_suffix() for this
+    purpose, but get_private_suffix() is more proper.
+
+    Optionally read, and parse a public suffix list. `psl_file` is either a file
+    location string, or a file-like object, or an iterable of lines from a
+    public suffix data file.
+
+    If psl_file is None, the vendored file named "public_suffix_list.dat" is
+    loaded. It is stored side by side with this Python package.
+
+    The file format is described at http://publicsuffix.org/
+
+    Convenience function that builds and caches a PublicSuffixList object.
+    NOTE: this function caches the first set of parameters thar were used. If we
+    have two subsequent calls:
+    ```
+        get_sld(domain, idna=False)
+        get_sld(domain, idna=True)
+    ```
+    the second call will use the same non-idna publicsuffix as the first one.
+    Use with caution.
+
+    :param psl_file: the file name, if not available built in is used
+    :param idna: only idna part of the public suffix is used
+    :param domain: string - domain name without trailing '.'
+    :param wildcard: bool - whether wildcard rules are supported
+    :param strict: bool - disable unknown TLDs
+    :return: second-level (registrable) domain that is TLD/eTLD + one label on the left
+        if only TLD is found it is returned. None if empty label or invalid input
     """
     global _PSL
     _PSL = _PSL or PublicSuffixList(psl_file, idna=idna)
@@ -340,8 +558,7 @@ def get_sld(domain, psl_file=None, wildcard=True, idna=True, strict=False):
 def get_tld(domain, psl_file=None, wildcard=True, idna=True, strict=False):
     """
     Return the TLD or public suffix for a `domain` DNS name string. (this is
-    actually the private suffix that is returned) Convenience function that
-    builds and caches a PublicSuffixList object.
+    actually the private suffix that is returned)
 
     Optionally read, and parse a public suffix list. `psl_file` is either a file
     location string, or a file-like object, or an iterable of lines from a
@@ -351,6 +568,23 @@ def get_tld(domain, psl_file=None, wildcard=True, idna=True, strict=False):
     loaded. It is stored side by side with this Python package.
 
     The file format is described at http://publicsuffix.org/
+
+    Convenience function that builds and caches a PublicSuffixList object.
+    NOTE: this function caches the first set of parameters thar were used. If we
+    have two subsequent calls:
+    ```
+        get_tld(domain, idna=False)
+        get_tld(domain, idna=True)
+    ```
+    the second call will use the same non-idna publicsuffix as the first one.
+    Use with caution.
+
+    :param psl_file: the file name, if not available built in is used
+    :param idna: only idna part of the public suffix is used
+    :param domain: string - domain name without trailing '.'
+    :param wildcard: bool - whether wildcard rules are supported
+    :param strict: bool - disable unknown TLDs
+    :return: TLD/eTLD or None
     """
     global _PSL
     _PSL = _PSL or PublicSuffixList(psl_file, idna=idna)
@@ -361,8 +595,7 @@ def get_public_suffix(domain, psl_file=None, wildcard=True, idna=True, strict=Fa
     """
     Included for compatibility with the original publicsuffix2 library -- this
     function returns the private suffix or SLD of the domain. To get the public
-    suffix, use get_tld(). Convenience function that builds and caches a
-    PublicSuffixList object.
+    suffix, use get_tld().
 
     Optionally read, and parse a public suffix list. `psl_file` is either a file
     location string, or a file-like object, or an iterable of lines from a

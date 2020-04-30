@@ -2,6 +2,12 @@ This file describes exact behavior of methods for different edge cases and
 explains general logic. This description covers the behavior of get_tld, 
 get_tld_unsafe, get_sld, get_sld_unsafe, split_domain, split_domain_unsafe
 
+Unsafe versions of the methods will significantly save resources on large-scale 
+applications of the library where the data has already been converted to 
+lowercase and missing data has a None value. This can be done in Spark/Dask, 
+for example, and result in a significant reduction in computational resources. 
+For adhoc usage, the original functions are sufficient.
+
 1. general difference of get_*() and get_*_unsafe() methods:
 get_*_unsafe() does not perform if the input string is None and does not 
 transforms it to the lower case.

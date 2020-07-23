@@ -212,8 +212,8 @@ class TestPublicSuffixGetSldIdna(unittest.TestCase):
     def test_get_sld_no_wildcard(self):
         psl = publicsuffix.PublicSuffixList()
         # test completion when no wildcards should be processed
-        assert 'pg' == psl.get_sld('telinet.com.pg', wildcard=False)
-        expected = 'amazonaws.com'
+        assert 'com.pg' == psl.get_sld('telinet.com.pg', wildcard=False)
+        expected = 'ap-southeast-1.elb.amazonaws.com'
         result = psl.get_sld('blah.ap-southeast-1.elb.amazonaws.com', wildcard=False)
         assert expected == result
 
@@ -231,9 +231,9 @@ class TestPublicSuffixGetSldIdna(unittest.TestCase):
         assert 'jp' == psl.get_tld('kobe.jp')
         assert 'com' == psl.get_tld('amazonaws.com')
         assert 'com.pg' == psl.get_tld('telinet.com.pg', wildcard=True)
-        assert None == psl.get_tld('telinet.com.pg', wildcard=False)
+        assert 'pg' == psl.get_tld('telinet.com.pg', wildcard=False)
         assert 'com.pg' == psl.get_tld('com.pg', wildcard=True)
-        assert None == psl.get_tld('com.pg', wildcard=False)
+        assert 'pg' == psl.get_tld('com.pg', wildcard=False)
         assert 'co.uk' == psl.get_tld('telinet.co.uk', wildcard=False)
         assert 'co.uk' == psl.get_tld('co.uk', wildcard=True)
         assert 'co.uk' == psl.get_tld('co.uk', wildcard=False)

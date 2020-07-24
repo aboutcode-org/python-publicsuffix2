@@ -124,9 +124,9 @@ class PublicSuffixList(object):
         # if child already exists as a node, grab the sub-Trie
         child_node = children.get(child, None)
 
-        # if it doesn't exist, creates a new node and initialized with [0]
+        # if it doesn't exist, creates a new node and initialized with [-1]
         if not child_node:
-            children[child] = child_node = [0]
+            children[child] = child_node = [-1]
 
         return self._find_node(child_node, parts)
 
@@ -222,7 +222,7 @@ class PublicSuffixList(object):
             # See: Algorithm 2 at https://publicsuffix.org/list/
             matches[-depth] = 0
 
-        if parent in (0, 1):
+        if parent in (-1, 0, 1):
             return
 
         children = parent[1]
@@ -231,13 +231,17 @@ class PublicSuffixList(object):
             for name in ('*', parts[-depth]):
                 child = children.get(name, None)
                 if child is not None:
-                    if wildcard or name != '*':
-                        if child in (0, 1):
-                            negate = child
-                        else:
-                            negate = child[0]
+                    if child in (-1, 0, 1):
+                        negate = child
+                    else:
+                        negate = child[0]
+                    if name == '*' and not wildcard:
+                        # negates '*' to select a name to the right of "*" ()
+                        # See: https://github.com/nexB/python-publicsuffix2/pull/19/files#r458703338
+                        matches[-depth] = 1
+                    elif negate != -1:
                         matches[-depth] = negate
-                        self._lookup_node(matches, depth + 1, child, parts, wildcard)
+                    self._lookup_node(matches, depth + 1, child, parts, wildcard)
 
     def get_sld(self, domain, wildcard=True, strict=False):
         """
@@ -302,15 +306,19 @@ class PublicSuffixList(object):
         parts = domain.lower().strip('.').split('.')
         hits = [None] * len(parts)
         if strict and (
-            self.root in (0, 1) or parts[-1] not in self.root[1].keys()
+            self.root in (-1, 0, 1) or parts[-1] not in self.root[1].keys()
         ):
             return None
 
         self._lookup_node(hits, 1, self.root, parts, wildcard)
 
         for i, what in enumerate(hits):
-            if what is not None and what == 0:
+            if what is None:
+                pass
+            elif what == 0:
                 return '.'.join(parts[i:])
+            elif what == 1:
+                return '.'.join(parts[i + 1:])
 
 
 _PSL = None

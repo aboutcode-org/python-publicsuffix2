@@ -226,9 +226,10 @@ class TestPublicSuffixGetSldIdna(unittest.TestCase):
     def test_get_tld_returns_correct_tld_or_etld(self):
         psl = publicsuffix.PublicSuffixList()
         assert 'com' == psl.get_tld('com')
+        assert 'ck' == psl.get_tld('ck')
         assert 'kobe.jp' == psl.get_tld('city.kobe.jp')
-        assert 'kobe.jp' == psl.get_tld('kobe.jp')
-        assert 'amazonaws.com' == psl.get_tld('amazonaws.com')
+        assert 'jp' == psl.get_tld('kobe.jp')
+        assert 'com' == psl.get_tld('amazonaws.com')
         assert 'com.pg' == psl.get_tld('telinet.com.pg', wildcard=True)
         assert 'pg' == psl.get_tld('telinet.com.pg', wildcard=False)
         assert 'com.pg' == psl.get_tld('com.pg', wildcard=True)
@@ -239,6 +240,12 @@ class TestPublicSuffixGetSldIdna(unittest.TestCase):
         assert None == psl.get_tld('blah.local', strict=True)
         assert None == psl.get_tld('blah.local', wildcard=False)
         assert 'local' == psl.get_tld('blah.local')
+
+        # See #18
+        assert 'git-pages.rit.edu' == psl.get_tld('git-pages.rit.edu')
+        assert 'edu' == psl.get_tld('rit.edu')
+        assert 'edu' == psl.get_tld('edu')
+        assert 'com' == psl.get_tld('cdn.fbsbx.com')
 
     def test_get_tld_returns_correct_tld_or_etld_for_fqdn(self):
         psl = publicsuffix.PublicSuffixList()

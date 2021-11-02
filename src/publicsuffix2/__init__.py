@@ -62,7 +62,7 @@ ABOUT_PSL_FILE = path.join(BASE_DIR, 'public_suffix_list.ABOUT')
 
 class PublicSuffixList(object):
 
-    def __init__(self, psl_file=None, idna=True):
+    def __init__(self, psl_file=None, idna=True, private=True):
         """
         Read and parse a public suffix list. `psl_file` is either a file
         location string, or a file-like object, or an iterable of lines from a
@@ -80,6 +80,7 @@ class PublicSuffixList(object):
 
         :param psl_file: string or None
         :param idna: boolean, whether to convert file to IDNA-encoded strings
+        :param private: boolean, include non-ICANN private names, default=True
         """
         # Note: we test for None as we accept empty lists as inputs
         if psl_file is None or isinstance(psl_file, str):
@@ -91,7 +92,7 @@ class PublicSuffixList(object):
 
         # a list of eTLDs with their modifiers, e.g., *
         self.tlds = []
-        root = self._build_structure(psl, idna)
+        root = self._build_structure(psl, idna, private)
         self.root = self._simplify(root)
 
     def _find_node(self, parent, parts):
@@ -161,7 +162,7 @@ class PublicSuffixList(object):
 
         return (node[0], dict((k, self._simplify(v)) for (k, v) in node[1].items()))
 
-    def _build_structure(self, fp, idna):
+    def _build_structure(self, fp, idna, private):
         """
         Build a Trie from the public suffix list. If idna==True, idna-encode
         each line before building.
@@ -180,6 +181,7 @@ class PublicSuffixList(object):
 
         :param fp: pointer for the public suffix list
         :param idna: boolean, convert lines to idna-encoded strings
+        :param private: boolean, include non-ICANN private names, default=True
         :return: Trie
         """
         root = [0]
@@ -188,6 +190,8 @@ class PublicSuffixList(object):
 
         for line in fp:
             line = line.strip()
+            if not private and line.startswith('// ===BEGIN PRIVATE'):
+                break
             if not line or line.startswith('//'):
                 continue
             if idna:

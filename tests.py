@@ -256,6 +256,10 @@ class TestPublicSuffixGetSldIdna(unittest.TestCase):
         psl = publicsuffix.PublicSuffixList()
         assert psl.tlds
 
+    def test_get_tld_no_private(self):
+        psl = publicsuffix.PublicSuffixList(private=False)
+        # Without private, ap-northeast-1.elasticbeanstalk.com is com
+        assert 'com' == psl.get_tld('ap-northeast-1.elasticbeanstalk.com')
 
 class TestPublicSuffixGetSld(unittest.TestCase):
 
